@@ -21,11 +21,11 @@ class Amis
     private ?\DateTimeInterface $dateAction = null;
 
     #[ORM\ManyToOne(targetEntity: Utilisateurs::class, inversedBy: 'demandesAmisEnvoyees')]
-    #[ORM\JoinColumn(name: 'id_utilisateur', referencedColumnName: 'id_utilisateur', nullable: false)]
+    #[ORM\JoinColumn(name: 'id_utilisateur', referencedColumnName: 'id', nullable: false)]
     private ?Utilisateurs $demandeur = null;
 
     #[ORM\ManyToOne(targetEntity: Utilisateurs::class, inversedBy: 'demandesAmisRecues')]
-    #[ORM\JoinColumn(name: 'id_utilisateur_2', referencedColumnName: 'id_utilisateur', nullable: false)]
+    #[ORM\JoinColumn(name: 'id_utilisateur_2', referencedColumnName: 'id', nullable: false)]
     private ?Utilisateurs $ami = null;
 
     // Getters / Setters
