@@ -2,21 +2,21 @@
 
 namespace App\Entity;
 
-use App\Repository\FavorieRepository;
+use App\Repository\FavorisRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: FavorieRepository::class)]
-class Favorie
+#[ORM\Entity(repositoryClass: FavorisRepository::class)]
+class Favoris
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'favories')]
+    #[ORM\ManyToOne(inversedBy: 'Favoriss')]
     private ?Utilisateurs $utilisateur = null;
 
-    #[ORM\ManyToOne(inversedBy: 'favories')]
+    #[ORM\ManyToOne(inversedBy: 'Favoriss')]
     private ?Ressources $resource = null;
 
     public function getId(): ?int

@@ -80,10 +80,10 @@ class Ressources
     private Collection $adorers;
 
     /**
-     * @var Collection<int, Favorie>
+     * @var Collection<int, Favoris>
      */
-    #[ORM\OneToMany(targetEntity: Favorie::class, mappedBy: 'resource')]
-    private Collection $favories;
+    #[ORM\OneToMany(targetEntity: Favoris::class, mappedBy: 'resource')]
+    private Collection $Favoriss;
 
     public function __construct()
     {
@@ -94,7 +94,7 @@ class Ressources
         $this->commentaires = new ArrayCollection();
         $this->partages = new ArrayCollection();
         $this->adorers = new ArrayCollection();
-        $this->favories = new ArrayCollection();
+        $this->Favoriss = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -397,26 +397,26 @@ class Ressources
     }
 
     /**
-     * @return Collection<int, Favorie>
+     * @return Collection<int, Favoris>
      */
-    public function getFavories(): Collection
+    public function getFavoriss(): Collection
     {
-        return $this->favories;
+        return $this->Favoriss;
     }
 
-    public function addFavory(Favorie $favory): static
+    public function addFavory(Favoris $favory): static
     {
-        if (!$this->favories->contains($favory)) {
-            $this->favories->add($favory);
+        if (!$this->Favoriss->contains($favory)) {
+            $this->Favoriss->add($favory);
             $favory->setResource($this);
         }
 
         return $this;
     }
 
-    public function removeFavory(Favorie $favory): static
+    public function removeFavory(Favoris $favory): static
     {
-        if ($this->favories->removeElement($favory)) {
+        if ($this->Favoriss->removeElement($favory)) {
             // set the owning side to null (unless already changed)
             if ($favory->getResource() === $this) {
                 $favory->setResource(null);

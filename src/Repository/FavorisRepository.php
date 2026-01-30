@@ -2,22 +2,22 @@
 
 namespace App\Repository;
 
-use App\Entity\Favorie;
+use App\Entity\Favoris;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Favorie>
+ * @extends ServiceEntityRepository<Favoris>
  */
-class FavorieRepository extends ServiceEntityRepository
+class FavorisRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Favorie::class);
+        parent::__construct($registry, Favoris::class);
     }
 
     //    /**
-    //     * @return Favorie[] Returns an array of Favorie objects
+    //     * @return Favoris[] Returns an array of Favoris objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -31,7 +31,7 @@ class FavorieRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?Favorie
+    //    public function findOneBySomeField($value): ?Favoris
     //    {
     //        return $this->createQueryBuilder('f')
     //            ->andWhere('f.exampleField = :val')
