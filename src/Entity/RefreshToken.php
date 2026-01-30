@@ -4,9 +4,11 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\RefreshTokenRepository;
+use Gesdinet\JWTRefreshTokenBundle\Model\RefreshTokenInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: RefreshTokenRepository::class)]
-class RefreshToken
+class RefreshToken implements RefreshTokenInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -17,14 +19,27 @@ class RefreshToken
     private ?string $refreshToken = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $expiresAt = null;
+    private ?\DateTimeImmutable $valid = null;
 
-    #[ORM\Column]
-    private ?bool $revoked = false;
+    #[ORM\Column(length: 255)]
+    private ?string $username = null;
 
     #[ORM\ManyToOne(targetEntity: Utilisateurs::class, inversedBy: 'refreshTokens')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Utilisateurs $utilisateur = null;
+
+    public static function createForUserWithTtl(string $refreshToken, UserInterface $user, int $ttl): RefreshTokenInterface
+    {
+        $valid = new \DateTime();
+        $valid->modify('+' . $ttl . ' seconds');
+
+        $entity = new self();
+        $entity->setRefreshToken($refreshToken);
+        $entity->setUsername($user->getUserIdentifier());
+        $entity->setValid(\DateTimeImmutable::createFromMutable($valid));
+
+        return $entity;
+    }
 
     public function getId(): ?int
     {
@@ -36,31 +51,31 @@ class RefreshToken
         return $this->refreshToken;
     }
 
-    public function setRefreshToken(string $refreshToken): static
+    public function setRefreshToken($refreshToken = null): RefreshTokenInterface
     {
         $this->refreshToken = $refreshToken;
         return $this;
     }
 
-    public function getExpiresAt(): ?\DateTimeImmutable
+    public function getValid(): ?\DateTimeImmutable
     {
-        return $this->expiresAt;
+        return $this->valid;
     }
 
-    public function setExpiresAt(\DateTimeImmutable $expiresAt): static
+    public function setValid($valid = null): RefreshTokenInterface
     {
-        $this->expiresAt = $expiresAt;
+        $this->valid = $valid instanceof \DateTime ? \DateTimeImmutable::createFromMutable($valid) : $valid;
         return $this;
     }
 
-    public function isRevoked(): ?bool
+    public function getUsername(): ?string
     {
-        return $this->revoked;
+        return $this->username;
     }
 
-    public function setRevoked(bool $revoked): static
+    public function setUsername($username = null): RefreshTokenInterface
     {
-        $this->revoked = $revoked;
+        $this->username = $username;
         return $this;
     }
 
@@ -69,9 +84,20 @@ class RefreshToken
         return $this->utilisateur;
     }
 
-    public function setUtilisateur(?Utilisateurs $utilisateur): static
+    public function setUtilisateur(?Utilisateurs $utilisateur): self
     {
         $this->utilisateur = $utilisateur;
         return $this;
+    }
+
+    public function isValid(): bool
+    {
+        $datetime = new \DateTimeImmutable();
+        return $this->valid >= $datetime;
+    }
+
+    public function __toString(): string
+    {
+        return $this->getRefreshToken() ?: '';
     }
 }
