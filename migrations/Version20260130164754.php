@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20260130101614 extends AbstractMigration
+final class Version20260130164754 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -29,9 +29,9 @@ final class Version20260130101614 extends AbstractMigration
         $this->addSql('CREATE TABLE favoris (id INT AUTO_INCREMENT NOT NULL, utilisateur_id INT DEFAULT NULL, resource_id INT DEFAULT NULL, INDEX IDX_8933C432FB88E14F (utilisateur_id), INDEX IDX_8933C43289329D25 (resource_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE medias (id INT AUTO_INCREMENT NOT NULL, chemin_fichier VARCHAR(255) NOT NULL, nom_fichier VARCHAR(255) NOT NULL, date_upload VARCHAR(255) NOT NULL, taille INT NOT NULL, resource_id INT DEFAULT NULL, INDEX IDX_12D2AF8189329D25 (resource_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE partages (id INT AUTO_INCREMENT NOT NULL, date_partage DATETIME NOT NULL, utilisateur_id INT DEFAULT NULL, utilisateur2_id INT DEFAULT NULL, resource_id INT DEFAULT NULL, INDEX IDX_B18F11CAFB88E14F (utilisateur_id), INDEX IDX_B18F11CA2241569D (utilisateur2_id), INDEX IDX_B18F11CA89329D25 (resource_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
-        $this->addSql('CREATE TABLE refresh_token (id INT AUTO_INCREMENT NOT NULL, token VARCHAR(255) NOT NULL, date_expiration DATETIME NOT NULL, est_revoque TINYINT NOT NULL, utilisateur_id INT NOT NULL, INDEX IDX_C74F2195FB88E14F (utilisateur_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE refresh_token (id INT AUTO_INCREMENT NOT NULL, refresh_token VARCHAR(255) NOT NULL, expires_at DATETIME NOT NULL, revoked TINYINT NOT NULL, utilisateur_id INT NOT NULL, UNIQUE INDEX UNIQ_C74F2195C74F2195 (refresh_token), INDEX IDX_C74F2195FB88E14F (utilisateur_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE renitialisation_mdp (id INT AUTO_INCREMENT NOT NULL, token_reset VARCHAR(255) NOT NULL, date_demande DATETIME NOT NULL, date_expiration DATETIME NOT NULL, date_utilisation DATETIME DEFAULT NULL, utilisateur_id INT DEFAULT NULL, INDEX IDX_45B07F0CFB88E14F (utilisateur_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
-        $this->addSql('CREATE TABLE ressources (id INT AUTO_INCREMENT NOT NULL, titre VARCHAR(255) NOT NULL, contenu LONGTEXT NOT NULL, valide TINYINT NOT NULL, date_creation DATETIME NOT NULL, date_modification DATETIME NOT NULL, est_visible TINYINT NOT NULL, utilisateur_id INT DEFAULT NULL, INDEX IDX_6A2CD5C7FB88E14F (utilisateur_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE ressources (id INT AUTO_INCREMENT NOT NULL, titre VARCHAR(255) NOT NULL, contenu LONGTEXT NOT NULL, valide TINYINT NOT NULL, date_creation DATETIME NOT NULL, date_modification DATETIME DEFAULT NULL, est_visible TINYINT NOT NULL, utilisateur_id INT NOT NULL, INDEX IDX_6A2CD5C7FB88E14F (utilisateur_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE roles_utilisateurs (id INT AUTO_INCREMENT NOT NULL, libelle VARCHAR(255) NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE tags (id INT AUTO_INCREMENT NOT NULL, libelle VARCHAR(255) NOT NULL, couleur VARCHAR(255) NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE tags_ressources (id INT AUTO_INCREMENT NOT NULL, resource_id INT DEFAULT NULL, tag_id INT DEFAULT NULL, INDEX IDX_895C92689329D25 (resource_id), INDEX IDX_895C926BAD26311 (tag_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');

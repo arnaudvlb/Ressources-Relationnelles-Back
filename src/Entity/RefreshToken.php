@@ -2,51 +2,28 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
-use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\RefreshTokenRepository;
 
 #[ORM\Entity(repositoryClass: RefreshTokenRepository::class)]
-#[ApiResource(
-    operations: [
-        new Get(),
-        new GetCollection(),
-        new Post(),
-        new Put(),
-        new Delete(),
-    ],
-    normalizationContext: ['groups' => ['refresh_token:read']],
-    denormalizationContext: ['groups' => ['refresh_token:write']]
-)]
 class RefreshToken
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['refresh_token:read'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    #[Groups(['refresh_token:read', 'refresh_token:write'])]
-    private ?string $token = null;
+    #[ORM\Column(length: 255, unique: true)]
+    private ?string $refreshToken = null;
 
     #[ORM\Column]
-    #[Groups(['refresh_token:read', 'refresh_token:write'])]
-    private ?\DateTimeImmutable $dateExpiration = null;
+    private ?\DateTimeImmutable $expiresAt = null;
 
     #[ORM\Column]
-    #[Groups(['refresh_token:read', 'refresh_token:write'])]
-    private ?bool $estRevoque = null;
+    private ?bool $revoked = false;
 
-    #[ORM\ManyToOne(inversedBy: 'refreshTokens')]
+    #[ORM\ManyToOne(targetEntity: Utilisateurs::class, inversedBy: 'refreshTokens')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['refresh_token:read', 'refresh_token:write'])]
     private ?Utilisateurs $utilisateur = null;
 
     public function getId(): ?int
@@ -54,39 +31,36 @@ class RefreshToken
         return $this->id;
     }
 
-    public function getToken(): ?string
+    public function getRefreshToken(): ?string
     {
-        return $this->token;
+        return $this->refreshToken;
     }
 
-    public function setToken(string $token): static
+    public function setRefreshToken(string $refreshToken): static
     {
-        $this->token = $token;
-
+        $this->refreshToken = $refreshToken;
         return $this;
     }
 
-    public function getDateExpiration(): ?\DateTimeImmutable
+    public function getExpiresAt(): ?\DateTimeImmutable
     {
-        return $this->dateExpiration;
+        return $this->expiresAt;
     }
 
-    public function setDateExpiration(\DateTimeImmutable $dateExpiration): static
+    public function setExpiresAt(\DateTimeImmutable $expiresAt): static
     {
-        $this->dateExpiration = $dateExpiration;
-
+        $this->expiresAt = $expiresAt;
         return $this;
     }
 
-    public function isEstRevoque(): ?bool
+    public function isRevoked(): ?bool
     {
-        return $this->estRevoque;
+        return $this->revoked;
     }
 
-    public function setEstRevoque(bool $estRevoque): static
+    public function setRevoked(bool $revoked): static
     {
-        $this->estRevoque = $estRevoque;
-
+        $this->revoked = $revoked;
         return $this;
     }
 
@@ -98,7 +72,6 @@ class RefreshToken
     public function setUtilisateur(?Utilisateurs $utilisateur): static
     {
         $this->utilisateur = $utilisateur;
-
         return $this;
     }
 }

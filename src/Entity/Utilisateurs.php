@@ -9,7 +9,10 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use App\Repository\UtilisateursRepository;
+use App\State\UserPasswordProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -19,14 +22,14 @@ use Doctrine\ORM\Mapping as ORM;
     operations: [
         new Get(),
         new GetCollection(),
-        new Post(),
-        new Put(),
+        new Post(processor: UserPasswordProcessor::class),
+        new Put(processor: UserPasswordProcessor::class),
         new Delete(),
     ],
     normalizationContext: ['groups' => ['utilisateurs:read']],
     denormalizationContext: ['groups' => ['utilisateurs:write']]
 )]
-class Utilisateurs
+class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -105,6 +108,9 @@ class Utilisateurs
     #[ORM\OneToMany(targetEntity: Favoris::class, mappedBy: 'utilisateur')]
     #[Groups(['utilisateurs:read'])]
     private Collection $Favoriss;
+
+    #[Groups(['utilisateurs:write'])]
+    private ?string $plainPassword = null;
 
     public function __construct()
     {
@@ -480,6 +486,42 @@ class Utilisateurs
             }
         }
 
+        return $this;
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->email;
+    }
+
+    public function getRoles(): array
+    {
+        $roles = [];
+        if ($this->role?->getLibelle()) {
+            $roles[] = $this->role->getLibelle();
+        }
+        $roles[] = 'ROLE_USER';
+        return array_values(array_unique($roles));
+    }
+
+    public function getPassword(): ?string
+    {
+        return $this->motDePasse;
+    }
+
+    public function eraseCredentials(): void
+    {
+        $this->plainPassword = null;
+    }
+
+    public function getPlainPassword(): ?string
+    {
+        return $this->plainPassword;
+    }
+
+    public function setPlainPassword(?string $plainPassword): static
+    {
+        $this->plainPassword = $plainPassword;
         return $this;
     }
 }
