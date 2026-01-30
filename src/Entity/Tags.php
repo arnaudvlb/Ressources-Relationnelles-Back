@@ -2,29 +2,48 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use Symfony\Component\Serializer\Annotation\Groups;
 use App\Repository\TagsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TagsRepository::class)]
+#[ApiResource(
+    operations: [
+        new Get(),
+        new GetCollection(),
+        new Post(),
+        new Put(),
+        new Delete(),
+    ],
+    normalizationContext: ['groups' => ['tags:read']],
+    denormalizationContext: ['groups' => ['tags:write']]
+)]
 class Tags
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['tags:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['tags:read', 'tags:write'])]
     private ?string $libelle = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['tags:read', 'tags:write'])]
     private ?string $couleur = null;
 
-    /**
-     * @var Collection<int, TagsRessources>
-     */
     #[ORM\OneToMany(targetEntity: TagsRessources::class, mappedBy: 'tag')]
+    #[Groups(['tags:read'])]
     private Collection $tagsRessources;
 
     public function __construct()

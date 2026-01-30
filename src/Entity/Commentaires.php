@@ -2,6 +2,13 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use Symfony\Component\Serializer\Annotation\Groups;
 use App\Repository\CommentairesRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -9,32 +16,47 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CommentairesRepository::class)]
+#[ApiResource(
+    operations: [
+        new Get(),
+        new GetCollection(),
+        new Post(),
+        new Put(),
+        new Delete(),
+    ],
+    normalizationContext: ['groups' => ['commentaires:read']],
+    denormalizationContext: ['groups' => ['commentaires:write']]
+)]
 class Commentaires
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['commentaires:read'])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(['commentaires:read', 'commentaires:write'])]
     private ?string $contenu = null;
 
     #[ORM\Column]
+    #[Groups(['commentaires:read', 'commentaires:write'])]
     private ?\DateTimeImmutable $dateCreation = null;
 
     #[ORM\ManyToOne(inversedBy: 'commentaires')]
+    #[Groups(['commentaires:read', 'commentaires:write'])]
     private ?Utilisateurs $utilisateur = null;
 
     #[ORM\ManyToOne(inversedBy: 'commentaires')]
+    #[Groups(['commentaires:read', 'commentaires:write'])]
     private ?Ressources $resource = null;
 
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'commentaires')]
+    #[Groups(['commentaires:read', 'commentaires:write'])]
     private ?self $commentaireParent = null;
 
-    /**
-     * @var Collection<int, self>
-     */
     #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'commentaireParent')]
+    #[Groups(['commentaires:read'])]
     private Collection $commentaires;
 
     public function __construct()

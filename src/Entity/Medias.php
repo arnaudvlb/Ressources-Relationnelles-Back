@@ -2,30 +2,54 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use Symfony\Component\Serializer\Annotation\Groups;
 use App\Repository\MediasRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: MediasRepository::class)]
+#[ApiResource(
+    operations: [
+        new Get(),
+        new GetCollection(),
+        new Post(),
+        new Put(),
+        new Delete(),
+    ],
+    normalizationContext: ['groups' => ['medias:read']],
+    denormalizationContext: ['groups' => ['medias:write']]
+)]
 class Medias
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['medias:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['medias:read', 'medias:write'])]
     private ?string $cheminFichier = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['medias:read', 'medias:write'])]
     private ?string $nomFichier = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['medias:read', 'medias:write'])]
     private ?string $dateUpload = null;
 
     #[ORM\Column]
+    #[Groups(['medias:read', 'medias:write'])]
     private ?int $taille = null;
 
     #[ORM\ManyToOne(inversedBy: 'medias')]
+    #[Groups(['medias:read', 'medias:write'])]
     private ?Ressources $resource = null;
 
     public function getId(): ?int

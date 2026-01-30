@@ -2,26 +2,45 @@
 
 namespace App\Entity;
 
-use App\Repository\RolesUtilisateursRepository;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\RolesUtilisateursRepository;
+
 
 #[ORM\Entity(repositoryClass: RolesUtilisateursRepository::class)]
+#[ApiResource(
+    operations: [
+        new Get(),
+        new GetCollection(),
+        new Post(),
+        new Put(),
+        new Delete(),
+    ],
+    normalizationContext: ['groups' => ['roles_utilisateurs:read']],
+    denormalizationContext: ['groups' => ['roles_utilisateurs:write']]
+)]
 class RolesUtilisateurs
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['roles_utilisateurs:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['roles_utilisateurs:read', 'roles_utilisateurs:write'])]
     private ?string $libelle = null;
 
-    /**
-     * @var Collection<int, Utilisateurs>
-     */
     #[ORM\OneToMany(targetEntity: Utilisateurs::class, mappedBy: 'role')]
+    #[Groups(['roles_utilisateurs:read'])]
     private Collection $utilisateurs;
 
     public function __construct()

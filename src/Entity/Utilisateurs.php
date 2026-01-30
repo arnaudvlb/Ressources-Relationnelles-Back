@@ -2,96 +2,108 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use Symfony\Component\Serializer\Annotation\Groups;
 use App\Repository\UtilisateursRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: UtilisateursRepository::class)]
+#[ApiResource(
+    operations: [
+        new Get(),
+        new GetCollection(),
+        new Post(),
+        new Put(),
+        new Delete(),
+    ],
+    normalizationContext: ['groups' => ['utilisateurs:read']],
+    denormalizationContext: ['groups' => ['utilisateurs:write']]
+)]
 class Utilisateurs
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['utilisateurs:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['utilisateurs:read', 'utilisateurs:write'])]
     private ?string $nom = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['utilisateurs:read', 'utilisateurs:write'])]
     private ?string $prenom = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['utilisateurs:read', 'utilisateurs:write'])]
     private ?string $telephone = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['utilisateurs:read', 'utilisateurs:write'])]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
     private ?string $motDePasse = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['utilisateurs:read', 'utilisateurs:write'])]
     private ?string $pseudo = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['utilisateurs:read', 'utilisateurs:write'])]
     private ?string $photoProfil = null;
 
     #[ORM\Column]
+    #[Groups(['utilisateurs:read', 'utilisateurs:write'])]
     private ?bool $statusCompte = null;
 
     #[ORM\Column]
+    #[Groups(['utilisateurs:read', 'utilisateurs:write'])]
     private ?\DateTimeImmutable $dateCreation = null;
 
     #[ORM\ManyToOne(inversedBy: 'utilisateurs')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['utilisateurs:read', 'utilisateurs:write'])]
     private ?RolesUtilisateurs $role = null;
 
-    /**
-     * @var Collection<int, RefreshToken>
-     */
     #[ORM\OneToMany(targetEntity: RefreshToken::class, mappedBy: 'utilisateur')]
+    #[Groups(['utilisateurs:read'])]
     private Collection $refreshTokens;
 
-    /**
-     * @var Collection<int, RenitialisationMdp>
-     */
     #[ORM\OneToMany(targetEntity: RenitialisationMdp::class, mappedBy: 'utilisateur')]
+    #[Groups(['utilisateurs:read'])]
     private Collection $renitialisationMdps;
 
-    /**
-     * @var Collection<int, Consultation>
-     */
     #[ORM\OneToMany(targetEntity: Consultation::class, mappedBy: 'utilisateur')]
+    #[Groups(['utilisateurs:read'])]
     private Collection $consultations;
 
-    /**
-     * @var Collection<int, Ressources>
-     */
     #[ORM\OneToMany(targetEntity: Ressources::class, mappedBy: 'utilisateur')]
+    #[Groups(['utilisateurs:read'])]
     private Collection $ressources;
 
-    /**
-     * @var Collection<int, Commentaires>
-     */
     #[ORM\OneToMany(targetEntity: Commentaires::class, mappedBy: 'utilisateur')]
+    #[Groups(['utilisateurs:read'])]
     private Collection $commentaires;
 
-    /**
-     * @var Collection<int, Partages>
-     */
     #[ORM\OneToMany(targetEntity: Partages::class, mappedBy: 'utilisateur')]
+    #[Groups(['utilisateurs:read'])]
     private Collection $partages;
 
-    /**
-     * @var Collection<int, Adorer>
-     */
     #[ORM\OneToMany(targetEntity: Adorer::class, mappedBy: 'utilisateur')]
+    #[Groups(['utilisateurs:read'])]
     private Collection $adorers;
 
-    /**
-     * @var Collection<int, Favoris>
-     */
     #[ORM\OneToMany(targetEntity: Favoris::class, mappedBy: 'utilisateur')]
+    #[Groups(['utilisateurs:read'])]
     private Collection $Favoriss;
 
     public function __construct()

@@ -186,9 +186,10 @@ class Ressources
         return $this->utilisateur;
     }
 
-    public function setUtilisateur(Utilisateurs $utilisateur): static
+    public function setUtilisateur(?Utilisateurs $utilisateur): static
     {
         $this->utilisateur = $utilisateur;
+
         return $this;
     }
 }

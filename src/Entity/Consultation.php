@@ -2,24 +2,46 @@
 
 namespace App\Entity;
 
-use App\Repository\ConsultationRepository;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\ConsultationRepository;
 
 #[ORM\Entity(repositoryClass: ConsultationRepository::class)]
+#[ApiResource(
+    operations: [
+        new Get(),
+        new GetCollection(),
+        new Post(),
+        new Put(),
+        new Delete(),
+    ],
+    normalizationContext: ['groups' => ['consultation:read']],
+    denormalizationContext: ['groups' => ['consultation:write']]
+)]
 class Consultation
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['consultation:read'])]
     private ?int $id = null;
 
     #[ORM\Column]
+    #[Groups(['consultation:read', 'consultation:write'])]
     private ?\DateTimeImmutable $dateConsultation = null;
 
     #[ORM\ManyToOne(inversedBy: 'consultations')]
+    #[Groups(['consultation:read', 'consultation:write'])]
     private ?Utilisateurs $utilisateur = null;
 
     #[ORM\ManyToOne(inversedBy: 'consultations')]
+    #[Groups(['consultation:read', 'consultation:write'])]
     private ?Ressources $resource = null;
 
     public function getId(): ?int

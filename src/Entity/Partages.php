@@ -2,27 +2,50 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use Symfony\Component\Serializer\Annotation\Groups;
 use App\Repository\PartagesRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PartagesRepository::class)]
+#[ApiResource(
+    operations: [
+        new Get(),
+        new GetCollection(),
+        new Post(),
+        new Put(),
+        new Delete(),
+    ],
+    normalizationContext: ['groups' => ['partages:read']],
+    denormalizationContext: ['groups' => ['partages:write']]
+)]
 class Partages
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['partages:read'])]
     private ?int $id = null;
 
     #[ORM\Column]
+    #[Groups(['partages:read', 'partages:write'])]
     private ?\DateTimeImmutable $datePartage = null;
 
     #[ORM\ManyToOne(inversedBy: 'partages')]
+    #[Groups(['partages:read', 'partages:write'])]
     private ?Utilisateurs $utilisateur = null;
 
     #[ORM\ManyToOne(inversedBy: 'partages')]
+    #[Groups(['partages:read', 'partages:write'])]
     private ?Utilisateurs $utilisateur2 = null;
 
     #[ORM\ManyToOne(inversedBy: 'partages')]
+    #[Groups(['partages:read', 'partages:write'])]
     private ?Ressources $resource = null;
 
     public function getId(): ?int
