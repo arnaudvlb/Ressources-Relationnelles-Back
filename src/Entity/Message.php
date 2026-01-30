@@ -24,11 +24,11 @@ class Message
     private ?\DateTimeInterface $dateEnvoie = null;
 
     #[ORM\ManyToOne(targetEntity: Utilisateurs::class, inversedBy: 'messagesEnvoyes')]
-    #[ORM\JoinColumn(name: 'id_Utilisateurs_1', referencedColumnName: 'id_Utilisateurs', nullable: false)]
+    #[ORM\JoinColumn(name: 'id_Utilisateurs_1', referencedColumnName: 'id', nullable: false)]
     private ?Utilisateurs $expediteur = null;
 
     #[ORM\ManyToOne(targetEntity: Utilisateurs::class, inversedBy: 'messagesRecus')]
-    #[ORM\JoinColumn(name: 'id_Utilisateurs_2', referencedColumnName: 'id_Utilisateurs', nullable: false)]
+    #[ORM\JoinColumn(name: 'id_Utilisateurs_2', referencedColumnName: 'id', nullable: false)]
     private ?Utilisateurs $destinataire = null;
 
     // Getters / Setters
