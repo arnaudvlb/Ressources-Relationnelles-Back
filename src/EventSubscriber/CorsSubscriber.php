@@ -11,16 +11,6 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class CorsSubscriber implements EventSubscriberInterface
 {
-    /**
-     * Origins autorisees pour le front en developpement.
-     *
-     * @var string[]
-     */
-    private const ALLOWED_ORIGINS = [
-        'http://localhost:3000',
-        'http://127.0.0.1:3000',
-    ];
-
     public static function getSubscribedEvents(): array
     {
         return [
@@ -66,7 +56,15 @@ class CorsSubscriber implements EventSubscriberInterface
     {
         $origin = $request->headers->get('Origin');
 
-        return $origin !== null && in_array($origin, self::ALLOWED_ORIGINS, true);
+        if ($origin === null) {
+            return false;
+        }
+
+        if (in_array($origin, ['http://localhost:3000', 'http://127.0.0.1:3000'], true)) {
+            return true;
+        }
+
+        return (bool) preg_match('/^http:\/\/(?:\d{1,3}\.){3}\d{1,3}:3000$/', $origin);
     }
 
     private function applyCorsHeaders(Request $request, Response $response): void
