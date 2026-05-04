@@ -14,11 +14,11 @@ security:
             security: false
 
         login:
-            pattern: ^/login_check
+            pattern: ^/api/login_check
             stateless: true
             provider: app_user_provider
             json_login:
-                check_path: /login_check
+                check_path: /api/login_check
                 username_path: email
                 password_path: password
                 success_handler: App\Security\AuthenticationSuccessHandler
@@ -31,7 +31,7 @@ security:
             jwt: ~
 
     access_control:
-        - { path: ^/login_check, roles: PUBLIC_ACCESS }
+        - { path: ^/api/login_check, roles: PUBLIC_ACCESS }
         - { path: ^/register, roles: PUBLIC_ACCESS, methods: [POST] }
         - { path: ^/api/utilisateurs, roles: PUBLIC_ACCESS, methods: [POST] }
         - { path: ^/api/ressources, roles: PUBLIC_ACCESS, methods: [POST] }

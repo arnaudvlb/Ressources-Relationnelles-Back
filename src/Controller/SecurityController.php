@@ -14,7 +14,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class SecurityController extends AbstractController
 {
-    #[Route('/login_check', name: 'api_login_check', methods: ['POST'])]
+    #[Route('/api/login_check', name: 'api_login_check', methods: ['POST'])]
     public function login(): JsonResponse
     {
         // Ce contrôleur ne sera jamais exécuté car la requête 
