@@ -48,7 +48,7 @@ class RessourcesService
         $ressource->setTitre($titre);
         $ressource->setContenu($contenu);
         $ressource->setUtilisateur($user);
-        $ressource->setDateCreation(new \DateTimeImmutable());
+        $ressource->setDateCreation(new \DateTime());
         $ressource->setEstVisible(true);
 
         return $ressource;

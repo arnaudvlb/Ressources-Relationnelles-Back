@@ -221,7 +221,7 @@ class Ressources
 
     public function getVisibilite(): VisibiliteStatut
     {
-        return $this->visibilite;
+        return $this->visibilite ?? VisibiliteStatut::PUBLIC;
     }
 
     public function setVisibilite(VisibiliteStatut $visibilite): static

@@ -4,6 +4,7 @@ namespace App\Security\Voter;
 
 use App\Entity\Ressources;
 use App\Entity\Utilisateurs;
+use App\Entity\VisibiliteStatut;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
@@ -23,12 +24,16 @@ class RessourcesVoter extends Voter
     {
         $user = $token->getUser();
 
+        /** @var Ressources $ressource */
+        $ressource = $subject;
+
+        if ($attribute === self::VIEW && $this->canView($ressource, $user)) {
+            return true;
+        }
+
         if (!$user instanceof Utilisateurs) {
             return false;
         }
-
-        /** @var Ressources $ressource */
-        $ressource = $subject;
 
         if (in_array('ROLE_ADMIN', $user->getRoles())) {
             return true;
@@ -46,17 +51,17 @@ class RessourcesVoter extends Voter
         }
     }
 
-    private function canView(Ressources $ressource, Utilisateurs $user): bool
+    private function canView(Ressources $ressource, mixed $user): bool
     {
-        if ($ressource->getVisibilite()->value === 'public') {
+        if ($ressource->getVisibilite() === VisibiliteStatut::PUBLIC) {
             return true;
         }
 
-        if ($ressource->getUtilisateur() === $user) {
+        if ($user instanceof Utilisateurs && $ressource->getUtilisateur() === $user) {
             return true;
         }
 
-        if ($ressource->getVisibilite()->value === 'friend') {
+        if ($user instanceof Utilisateurs && $ressource->getVisibilite() === VisibiliteStatut::AMI) {
             return true;
         }
 
