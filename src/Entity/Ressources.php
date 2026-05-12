@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\RessourcesRepository;
+use App\State\RessourcesCollectionProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -38,7 +39,9 @@ enum VisibiliteStatut: string
         new Get(
             security: "is_granted('RESSOURCE_VIEW', object)"
         ),
-        new GetCollection(),
+        new GetCollection(
+            provider: RessourcesCollectionProvider::class
+        ),
         new Post(
             security: "is_granted('ROLE_USER')"
         ),

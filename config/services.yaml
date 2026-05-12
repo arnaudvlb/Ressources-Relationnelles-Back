@@ -28,6 +28,11 @@ services:
             $passwordHasher: "@security.user_password_hasher"
             $rolesRepo: '@App\Repository\RolesUtilisateursRepository'
 
+    App\State\RessourcesCollectionProvider:
+        arguments:
+            $ressourcesRepository: '@App\Repository\RessourcesRepository'
+            $security: "@security.helper"
+
     # Singleton pour la gestion de la session utilisateur
     App\Service\UserSessionManager:
         shared: true # Force le singleton (une seule instance par conteneur)
