@@ -38,4 +38,7 @@ security:
         - { path: ^/api/utilisateurs, roles: PUBLIC_ACCESS, methods: [POST] }
         - { path: ^/api/ressources, roles: PUBLIC_ACCESS, methods: [POST] }
         - { path: ^/api/ressources, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/tags, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/categories, roles: PUBLIC_ACCESS, methods: [GET] }
+        - { path: ^/api/types, roles: PUBLIC_ACCESS, methods: [GET] }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
