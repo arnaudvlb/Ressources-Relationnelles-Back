@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\State\CommentaireCreateProcessor;
+use App\State\MessagesRecusProvider;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Attribute\Groups;
 use App\Repository\MessageRepository;
@@ -20,6 +21,11 @@ use Doctrine\ORM\Mapping as ORM;
     operations: [
         new Get(),
         new GetCollection(),
+        new GetCollection(
+            uriTemplate: '/messages/recus',
+            provider: MessagesRecusProvider::class,
+            security: "is_granted('ROLE_USER')"
+        ),
         new Post(
             security: "is_granted('ROLE_USER')",
             processor: CommentaireCreateProcessor::class
