@@ -19,7 +19,6 @@ use App\Entity\Ressources;
 use App\Entity\RolesUtilisateurs;
 use App\Entity\Tags;
 use App\Entity\TagsRessources;
-use App\Entity\Types;
 use App\Entity\Utilisateurs;
 use App\Entity\VisibiliteStatut;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
