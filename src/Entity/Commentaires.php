@@ -74,6 +74,10 @@ class Commentaires
     #[SerializedName('id_user')]
     private ?int $idUser = null;
 
+    #[Groups(['commentaires:write'])]
+    #[SerializedName('commentaireParentId')]
+    private ?int $commentaireParentIdInput = null;
+
     public function __construct()
     {
         $this->commentaires = new ArrayCollection();
@@ -188,6 +192,18 @@ class Commentaires
     public function setIdUser(?int $idUser): static
     {
         $this->idUser = $idUser;
+
+        return $this;
+    }
+
+    public function getCommentaireParentIdInput(): ?int
+    {
+        return $this->commentaireParentIdInput;
+    }
+
+    public function setCommentaireParentIdInput(?int $commentaireParentIdInput): static
+    {
+        $this->commentaireParentIdInput = $commentaireParentIdInput;
 
         return $this;
     }
