@@ -75,6 +75,10 @@ class Commentaires
     private ?int $idUser = null;
 
     #[Groups(['commentaires:write'])]
+    #[SerializedName('id_resource')]
+    private ?int $idResource = null;
+
+    #[Groups(['commentaires:write'])]
     #[SerializedName('commentaireParentId')]
     private ?int $commentaireParentIdInput = null;
 
@@ -192,6 +196,18 @@ class Commentaires
     public function setIdUser(?int $idUser): static
     {
         $this->idUser = $idUser;
+
+        return $this;
+    }
+
+    public function getIdResource(): ?int
+    {
+        return $this->idResource;
+    }
+
+    public function setIdResource(?int $idResource): static
+    {
+        $this->idResource = $idResource;
 
         return $this;
     }

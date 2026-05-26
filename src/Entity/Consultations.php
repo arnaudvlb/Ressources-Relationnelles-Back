@@ -8,6 +8,8 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\State\CommentaireCreateProcessor;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ConsultationsRepository;
@@ -17,7 +19,10 @@ use App\Repository\ConsultationsRepository;
     operations: [
         new Get(),
         new GetCollection(),
-        new Post(),
+        new Post(
+            security: "is_granted('ROLE_USER')",
+            processor: CommentaireCreateProcessor::class
+        ),
         new Put(),
         new Delete(),
     ],
@@ -43,6 +48,10 @@ class Consultations
     #[ORM\ManyToOne(inversedBy: 'consultations')]
     #[Groups(['consultations:read', 'consultations:write'])]
     private ?Ressources $resource = null;
+
+    #[Groups(['consultations:write'])]
+    #[SerializedName('id_resource')]
+    private ?int $idResource = null;
 
     public function getId(): ?int
     {
@@ -81,6 +90,18 @@ class Consultations
     public function setResource(?Ressources $resource): static
     {
         $this->resource = $resource;
+
+        return $this;
+    }
+
+    public function getIdResource(): ?int
+    {
+        return $this->idResource;
+    }
+
+    public function setIdResource(?int $idResource): static
+    {
+        $this->idResource = $idResource;
 
         return $this;
     }

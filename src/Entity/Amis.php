@@ -8,6 +8,8 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\State\CommentaireCreateProcessor;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Attribute\Groups;
 use App\Repository\AmisRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -18,7 +20,10 @@ use Doctrine\ORM\Mapping as ORM;
     operations: [
         new Get(),
         new GetCollection(),
-        new Post(),
+        new Post(
+            security: "is_granted('ROLE_USER')",
+            processor: CommentaireCreateProcessor::class
+        ),
         new Put(),
         new Delete(),
     ],
@@ -50,6 +55,10 @@ class Amis
     #[ORM\JoinColumn(name: 'id_utilisateur_2', referencedColumnName: 'id', nullable: false)]
     #[Groups(['amis:read', 'amis:write'])]
     private ?Utilisateurs $ami = null;
+
+    #[Groups(['amis:write'])]
+    #[SerializedName('id_ami')]
+    private ?int $idAmi = null;
 
     public function getId(): ?int
     {
@@ -97,6 +106,17 @@ class Amis
     public function setAmi(?Utilisateurs $ami): self
     {
         $this->ami = $ami;
+        return $this;
+    }
+
+    public function getIdAmi(): ?int
+    {
+        return $this->idAmi;
+    }
+
+    public function setIdAmi(?int $idAmi): self
+    {
+        $this->idAmi = $idAmi;
         return $this;
     }
 }

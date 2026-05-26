@@ -8,6 +8,8 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\State\CommentaireCreateProcessor;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Attribute\Groups;
 use App\Repository\FavorisRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -18,7 +20,8 @@ use Doctrine\ORM\Mapping as ORM;
         new Get(),
         new GetCollection(),
         new Post(
-            security: "is_granted('ROLE_USER')"
+            security: "is_granted('ROLE_USER')",
+            processor: CommentaireCreateProcessor::class
         ),
         new Put(
             security: "is_granted('FAVORI_EDIT', object)"
@@ -42,6 +45,10 @@ class Favoris
     #[Groups(['favoris:read', 'favoris:write', 'resource:read'])]
     private ?Utilisateurs $utilisateur = null;
 
+    #[Groups(['favoris:write'])]
+    #[SerializedName('id_resource')]
+    private ?int $idResource = null;
+
     #[ORM\ManyToOne(inversedBy: 'favoris')]
     #[Groups(['favoris:read', 'favoris:write', 'resource:read'])]
     private ?Ressources $resource = null;
@@ -59,6 +66,18 @@ class Favoris
     public function setUtilisateur(?Utilisateurs $utilisateur): static
     {
         $this->utilisateur = $utilisateur;
+
+        return $this;
+    }
+
+    public function getIdResource(): ?int
+    {
+        return $this->idResource;
+    }
+
+    public function setIdResource(?int $idResource): static
+    {
+        $this->idResource = $idResource;
 
         return $this;
     }

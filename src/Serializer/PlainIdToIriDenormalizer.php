@@ -2,8 +2,12 @@
 
 namespace App\Serializer;
 
+use App\Entity\Adorer;
 use App\Entity\Amis;
 use App\Entity\Commentaires;
+use App\Entity\Consultations;
+use App\Entity\Favoris;
+use App\Entity\Message;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareTrait;
@@ -12,7 +16,7 @@ class PlainIdToIriDenormalizer implements DenormalizerInterface, DenormalizerAwa
 {
     use DenormalizerAwareTrait;
 
-    private array $handledTypes = [Commentaires::class, Amis::class];
+    private array $handledTypes = [Commentaires::class, Amis::class, Message::class, Adorer::class, Favoris::class, Consultations::class];
 
     public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
     {
@@ -28,37 +32,20 @@ class PlainIdToIriDenormalizer implements DenormalizerInterface, DenormalizerAwa
             return $this->denormalizer->denormalize($data, $type, $format, $context);
         }
 
-        $convert = function (&$value) {
+        $convert = function (&$value, string $prefix) {
             if (is_int($value) || ctype_digit((string)$value)) {
-                $value = '/api/utilisateurs/' . (int) $value;
+                $value = sprintf('/api/%s/%d', $prefix, (int) $value);
                 return;
             }
 
             if (is_array($value) && isset($value['id'])) {
-                $value = '/api/utilisateurs/' . (int) $value['id'];
+                $value = sprintf('/api/%s/%d', $prefix, (int) $value['id']);
             }
         };
 
-        if ($type === Commentaires::class) {
-            if (array_key_exists('utilisateur', $data)) {
-                $convert($data['utilisateur']);
-            }
-
-            if (array_key_exists('resource', $data)) {
-                if (is_int($data['resource']) || ctype_digit((string) $data['resource'])) {
-                    $data['resource'] = '/api/ressources/' . (int) $data['resource'];
-                } elseif (is_array($data['resource']) && isset($data['resource']['id'])) {
-                    $data['resource'] = '/api/ressources/' . (int) $data['resource']['id'];
-                }
-            }
-        }
-
-        if ($type === Amis::class) {
-            if (array_key_exists('demandeur', $data)) {
-                $convert($data['demandeur']);
-            }
-            if (array_key_exists('ami', $data)) {
-                $convert($data['ami']);
+        foreach (['utilisateur' => 'utilisateurs', 'expediteur' => 'utilisateurs', 'destinataire' => 'utilisateurs', 'demandeur' => 'utilisateurs', 'ami' => 'utilisateurs', 'resource' => 'ressources'] as $field => $prefix) {
+            if (array_key_exists($field, $data)) {
+                $convert($data[$field], $prefix);
             }
         }
 
@@ -70,6 +57,10 @@ class PlainIdToIriDenormalizer implements DenormalizerInterface, DenormalizerAwa
         return [
             Commentaires::class => true,
             Amis::class => true,
+            Message::class => true,
+            Adorer::class => true,
+            Favoris::class => true,
+            Consultations::class => true,
         ];
     }
 }
