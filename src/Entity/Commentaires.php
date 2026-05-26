@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 use App\Repository\CommentairesRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -60,7 +61,7 @@ class Commentaires
     private ?Ressources $resource = null;
 
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'commentaires')]
-    #[Groups(['commentaires:read', 'commentaires:write'])]
+    #[Groups(['commentaires:read', 'commentaires:write', 'resource:read'])]
     private ?self $commentaireParent = null;
 
     #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'commentaireParent')]
@@ -135,6 +136,13 @@ class Commentaires
         $this->commentaireParent = $commentaireParent;
 
         return $this;
+    }
+
+    #[Groups(['commentaires:read', 'resource:read'])]
+    #[SerializedName('commentaireParentId')]
+    public function getCommentaireParentId(): ?int
+    {
+        return $this->commentaireParent?->getId();
     }
 
     /**
