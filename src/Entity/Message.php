@@ -55,7 +55,6 @@ class Message
     #[Groups(['message:read', 'message:write'])]
     private ?Utilisateurs $destinataire = null;
 
-    // Getters / Setters
     public function getId(): ?int
     {
         return $this->id;

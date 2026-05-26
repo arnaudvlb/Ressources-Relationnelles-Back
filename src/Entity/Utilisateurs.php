@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -24,6 +25,10 @@ use Doctrine\ORM\Mapping as ORM;
         new GetCollection(),
         new Post(processor: UserPasswordProcessor::class),
         new Put(processor: UserPasswordProcessor::class),
+        new Patch(
+            security: "is_granted('ROLE_USER') and object == user",
+            denormalizationContext: ['groups' => ['utilisateurs:profile:write']]
+        ),
         new Delete(),
     ],
     normalizationContext: ['groups' => ['utilisateurs:read']],
@@ -38,26 +43,26 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['utilisateurs:read', 'utilisateurs:write', 'resource:read'])]
+    #[Groups(['utilisateurs:read', 'utilisateurs:write', 'utilisateurs:profile:write', 'resource:read'])]
     private ?string $nom = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['utilisateurs:read', 'utilisateurs:write', 'resource:read'])]
+    #[Groups(['utilisateurs:read', 'utilisateurs:write', 'utilisateurs:profile:write', 'resource:read'])]
     private ?string $prenom = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['utilisateurs:read', 'utilisateurs:write', 'resource:read'])]
+    #[Groups(['utilisateurs:read', 'utilisateurs:write', 'utilisateurs:profile:write', 'resource:read'])]
     private ?string $telephone = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['utilisateurs:read', 'utilisateurs:write', 'resource:read'])]
+    #[Groups(['utilisateurs:read', 'utilisateurs:write', 'utilisateurs:profile:write', 'resource:read'])]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
     private ?string $motDePasse = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['utilisateurs:read', 'utilisateurs:write', 'resource:read'])]
+    #[Groups(['utilisateurs:read', 'utilisateurs:write', 'utilisateurs:profile:write', 'resource:read'])]
     private ?string $pseudo = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -271,7 +276,6 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeRefreshToken(RefreshToken $refreshToken): static
     {
         if ($this->refreshTokens->removeElement($refreshToken)) {
-            // set the owning side to null (unless already changed)
             if ($refreshToken->getUtilisateur() === $this) {
                 $refreshToken->setUtilisateur(null);
             }
@@ -301,7 +305,6 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeRenitialisationMdp(RenitialisationMdp $renitialisationMdp): static
     {
         if ($this->renitialisationMdps->removeElement($renitialisationMdp)) {
-            // set the owning side to null (unless already changed)
             if ($renitialisationMdp->getUtilisateur() === $this) {
                 $renitialisationMdp->setUtilisateur(null);
             }
@@ -331,7 +334,6 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeConsultation(Consultations $consultation): static
     {
         if ($this->consultations->removeElement($consultation)) {
-            // set the owning side to null (unless already changed)
             if ($consultation->getUtilisateur() === $this) {
                 $consultation->setUtilisateur(null);
             }
@@ -361,7 +363,6 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeRessource(Ressources $ressource): static
     {
         if ($this->ressources->removeElement($ressource)) {
-            // set the owning side to null (unless already changed)
             if ($ressource->getUtilisateur() === $this) {
                 $ressource->setUtilisateur(null);
             }
@@ -391,7 +392,6 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeCommentaire(Commentaires $commentaire): static
     {
         if ($this->commentaires->removeElement($commentaire)) {
-            // set the owning side to null (unless already changed)
             if ($commentaire->getUtilisateur() === $this) {
                 $commentaire->setUtilisateur(null);
             }
@@ -421,7 +421,6 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
     public function removePartage(Partages $partage): static
     {
         if ($this->partages->removeElement($partage)) {
-            // set the owning side to null (unless already changed)
             if ($partage->getUtilisateur() === $this) {
                 $partage->setUtilisateur(null);
             }
@@ -451,7 +450,6 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeAdorer(Adorer $adorer): static
     {
         if ($this->adorers->removeElement($adorer)) {
-            // set the owning side to null (unless already changed)
             if ($adorer->getUtilisateur() === $this) {
                 $adorer->setUtilisateur(null);
             }
@@ -481,7 +479,6 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeFavory(Favoris $favory): static
     {
         if ($this->favoris->removeElement($favory)) {
-            // set the owning side to null (unless already changed)
             if ($favory->getUtilisateur() === $this) {
                 $favory->setUtilisateur(null);
             }

@@ -26,10 +26,8 @@ class AuthenticationFailureHandler implements AuthenticationFailureHandlerInterf
         $email = $data['email'] ?? null;
 
         if ($email) {
-            // Enregistrer la tentative échouée
             $this->loginAttemptService->recordFailedAttempt($email);
 
-            // Vérifier si le compte est verrouillé
             if ($this->loginAttemptService->isLocked($email)) {
                 $remainingTime = $this->loginAttemptService->getRemainingLockTime($email);
                 return new JsonResponse([

@@ -25,7 +25,6 @@ class LoginAttemptService
         $item->expiresAfter(self::LOCK_TIME);
         $this->cache->save($item);
 
-        // Enregistrer aussi le timestamp d'expiration
         $expiresKey = $this->getExpiresAtKey($email);
         $expiresItem = $this->cache->getItem($expiresKey);
         $expiresItem->set(time() + self::LOCK_TIME);

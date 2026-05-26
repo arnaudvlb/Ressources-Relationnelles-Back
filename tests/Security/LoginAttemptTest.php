@@ -12,7 +12,6 @@ class LoginAttemptTest
 
     protected function setUp(): void
     {
-        // Utiliser un cache en mémoire pour les tests
         $this->cache = new ArrayAdapter();
         $this->loginAttemptService = new LoginAttemptService($this->cache);
     }
@@ -115,14 +114,12 @@ class LoginAttemptTest
     {
         $email = 'successtest@example.com';
 
-        // Enregistrer 3 tentatives échouées
         $this->loginAttemptService->recordFailedAttempt($email);
         $this->loginAttemptService->recordFailedAttempt($email);
         $this->loginAttemptService->recordFailedAttempt($email);
 
         $this->assertTrue($this->loginAttemptService->isLocked($email));
 
-        // Enregistrer une connexion réussie
         $this->loginAttemptService->recordSuccessfulAttempt($email);
 
         $this->assertFalse($this->loginAttemptService->isLocked($email));

@@ -35,16 +35,13 @@ class RessourcesCollectionProvider implements ProviderInterface
         $qb = $this->ressourcesRepository->createQueryBuilder('r');
         $currentUser = $this->security->getUser();
 
-        // Apply visibility filter
         $this->applyVisibilityFilter($qb, $currentUser);
 
-        // Apply search filter
         if ($search = $request->query->get('search')) {
             $qb->andWhere('(r.titre LIKE :search OR r.contenu LIKE :search)')
                 ->setParameter('search', '%' . $search . '%');
         }
 
-        // Apply tags filter
         if ($tags = $request->query->get('tags')) {
             $tagIds = is_array($tags) ? $tags : array_filter(array_map('trim', explode(',', $tags)));
             if (!empty($tagIds)) {
@@ -56,7 +53,6 @@ class RessourcesCollectionProvider implements ProviderInterface
             }
         }
 
-        // Apply categories filter
         if ($categories = $request->query->get('categories')) {
             $categoryIds = is_array($categories) ? $categories : array_filter(array_map('trim', explode(',', $categories)));
             if (!empty($categoryIds)) {
@@ -67,7 +63,6 @@ class RessourcesCollectionProvider implements ProviderInterface
             }
         }
 
-        // Apply media filter (has media or not)
         if ($hasMedia = $request->query->get('hasMedia')) {
             $qb->leftJoin('r.medias', 'm');
             if ($hasMedia === 'true' || $hasMedia === '1') {
@@ -78,7 +73,6 @@ class RessourcesCollectionProvider implements ProviderInterface
             $qb->addGroupBy('r.id');
         }
 
-        // Order by creation date
         $qb->orderBy('r.dateCreation', 'DESC');
 
         return $qb->getQuery()->getResult();
@@ -90,10 +84,8 @@ class RessourcesCollectionProvider implements ProviderInterface
     private function applyVisibilityFilter($qb, $currentUser): void
     {
         if (!$currentUser) {
-            // Not authenticated: only PUBLIC resources
             $qb->andWhere("r.visibilite = 'public'");
         } else {
-            // Authenticated: PUBLIC + AMI (if user is friend) + PRIVE (if owner)
             $qb->andWhere("(
                 r.visibilite = 'public' 
                 OR (r.utilisateur = :user AND r.visibilite = 'private')

@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\State\CommentaireCreateProcessor;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 use App\Repository\CommentairesRepository;
@@ -24,7 +25,8 @@ use Doctrine\ORM\Mapping as ORM;
         ),
         new GetCollection(),
         new Post(
-            security: "is_granted('ROLE_USER')"
+            security: "is_granted('ROLE_USER')",
+            processor: CommentaireCreateProcessor::class
         ),
         new Put(
             security: "is_granted('COMMENTAIRE_EDIT', object)"
@@ -53,7 +55,7 @@ class Commentaires
     private ?\DateTime $dateCreation = null;
 
     #[ORM\ManyToOne(inversedBy: 'commentaires')]
-    #[Groups(['commentaires:read', 'commentaires:write'])]
+    #[Groups(['commentaires:read'])]
     private ?Utilisateurs $utilisateur = null;
 
     #[ORM\ManyToOne(inversedBy: 'commentaires')]
@@ -67,6 +69,10 @@ class Commentaires
     #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'commentaireParent')]
     #[Groups(['commentaires:read'])]
     private Collection $commentaires;
+
+    #[Groups(['commentaires:write'])]
+    #[SerializedName('id_user')]
+    private ?int $idUser = null;
 
     public function __construct()
     {
@@ -166,11 +172,22 @@ class Commentaires
     public function removeCommentaire(self $commentaire): static
     {
         if ($this->commentaires->removeElement($commentaire)) {
-            // set the owning side to null (unless already changed)
             if ($commentaire->getCommentaireParent() === $this) {
                 $commentaire->setCommentaireParent(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getIdUser(): ?int
+    {
+        return $this->idUser;
+    }
+
+    public function setIdUser(?int $idUser): static
+    {
+        $this->idUser = $idUser;
 
         return $this;
     }

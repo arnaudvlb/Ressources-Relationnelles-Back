@@ -20,7 +20,6 @@ class DatabaseNotificationObserver implements NotificationObserverInterface
 
     public function supports(NotificationEvent $event): bool
     {
-        // Cet observateur traite tous les types d'événements
         return true;
     }
 
@@ -40,7 +39,6 @@ class DatabaseNotificationObserver implements NotificationObserverInterface
                 return;
             }
 
-            // Créer la notification
             $notification = new Notification();
             $notification->setUtilisateur($recipient);
             $notification->setType($event->getType());
@@ -52,7 +50,6 @@ class DatabaseNotificationObserver implements NotificationObserverInterface
             $this->entityManager->persist($notification);
             $this->entityManager->flush();
 
-            // Log pour debug
             echo "✓ Notification stockée en BD pour {$recipient->getEmail()}\n";
         } catch (\Exception $e) {
             echo "✗ Erreur DB Notification: " . $e->getMessage() . "\n";

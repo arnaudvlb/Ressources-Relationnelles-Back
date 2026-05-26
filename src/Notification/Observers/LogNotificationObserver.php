@@ -18,7 +18,6 @@ class LogNotificationObserver implements NotificationObserverInterface
 
     public function supports(NotificationEvent $event): bool
     {
-        // Log tous les événements
         return true;
     }
 

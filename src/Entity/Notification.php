@@ -33,7 +33,6 @@ class Notification
     #[ORM\JoinColumn(name: 'id_utilisateur', referencedColumnName: 'id', nullable: false)]
     private ?Utilisateurs $utilisateur = null;
 
-    // Getters / Setters
     public function getId(): ?int
     {
         return $this->id;

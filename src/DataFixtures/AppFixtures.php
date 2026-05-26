@@ -120,7 +120,6 @@ class AppFixtures extends Fixture
         $manager->persist($category2);
         $manager->persist($category3);
 
-        // Create some shares (Partages)
         $partage1 = (new Partages())
             ->setResource($resource1)
             ->setUtilisateur($userBob)
@@ -134,7 +133,6 @@ class AppFixtures extends Fixture
         $manager->persist($partage1);
         $manager->persist($partage2);
 
-        // Create some loves (Adorer)
         $adorer1 = (new Adorer())
             ->setResource($resource1)
             ->setUtilisateur($userCarla)
@@ -154,7 +152,6 @@ class AppFixtures extends Fixture
         $manager->persist($adorer2);
         $manager->persist($adorer3);
 
-        // Create some favorites (Favoris)
         $favori1 = (new Favoris())
             ->setResource($resource1)
             ->setUtilisateur($userBob);

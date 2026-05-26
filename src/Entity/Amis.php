@@ -51,7 +51,6 @@ class Amis
     #[Groups(['amis:read', 'amis:write'])]
     private ?Utilisateurs $ami = null;
 
-    // Getters / Setters
     public function getId(): ?int
     {
         return $this->id;
