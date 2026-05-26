@@ -56,7 +56,7 @@ class RessourcesCollectionProvider implements ProviderInterface
         if ($categories = $request->query->get('categories')) {
             $categoryIds = is_array($categories) ? $categories : array_filter(array_map('trim', explode(',', $categories)));
             if (!empty($categoryIds)) {
-                $qb->leftJoin('r.categories', 'c')
+                $qb->leftJoin('r.categorie', 'c')
                     ->andWhere('c.id IN (:categoryIds)')
                     ->setParameter('categoryIds', array_map('intval', $categoryIds))
                     ->addGroupBy('r.id');

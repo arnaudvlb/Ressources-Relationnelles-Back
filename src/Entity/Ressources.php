@@ -16,6 +16,7 @@ use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\ApiProperty;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 
 enum VisibiliteStatut: string
 {
@@ -107,10 +108,11 @@ class Ressources
     #[Groups(['resource:read'])]
     private Collection $tagsRessources;
 
-    #[ORM\OneToMany(targetEntity: Categories::class, mappedBy: 'resource')]
+    #[ORM\ManyToOne(inversedBy: 'ressources')]
+    #[ORM\JoinColumn(name: 'categorie_id', referencedColumnName: 'id', nullable: false)]
     #[ApiProperty(readableLink: true)]
-    #[Groups(['resource:read'])]
-    private Collection $categories;
+    #[Groups(['resource:write'])]
+    private ?Categories $categorie = null;
 
     #[ORM\OneToMany(targetEntity: Consultations::class, mappedBy: 'resource')]
     #[ApiProperty(readableLink: true)]
@@ -142,7 +144,6 @@ class Ressources
         $this->dateCreation = new \DateTime();
         $this->medias = new ArrayCollection();
         $this->tagsRessources = new ArrayCollection();
-        $this->categories = new ArrayCollection();
         $this->consultations = new ArrayCollection();
         $this->commentaires = new ArrayCollection();
         $this->partages = new ArrayCollection();
@@ -298,31 +299,23 @@ class Ressources
         return $this;
     }
 
-    /**
-     * @return Collection<int, Categories>
-     */
-    public function getCategories(): Collection
+    public function getCategorie(): ?Categories
     {
-        return $this->categories;
+        return $this->categorie;
     }
 
-    public function addCategory(Categories $category): static
+    public function setCategorie(?Categories $categorie): static
     {
-        if (!$this->categories->contains($category)) {
-            $this->categories->add($category);
-            $category->setResource($this);
-        }
+        $this->categorie = $categorie;
+
         return $this;
     }
 
-    public function removeCategory(Categories $category): static
+    #[Groups(['resource:read'])]
+    #[SerializedName('categorie_id')]
+    public function getCategorieId(): ?int
     {
-        if ($this->categories->removeElement($category)) {
-            if ($category->getResource() === $this) {
-                $category->setResource(null);
-            }
-        }
-        return $this;
+        return $this->categorie?->getId();
     }
 
     /**
