@@ -43,6 +43,14 @@ class PlainIdToIriDenormalizer implements DenormalizerInterface, DenormalizerAwa
             if (array_key_exists('utilisateur', $data)) {
                 $convert($data['utilisateur']);
             }
+
+            if (array_key_exists('resource', $data)) {
+                if (is_int($data['resource']) || ctype_digit((string) $data['resource'])) {
+                    $data['resource'] = '/api/ressources/' . (int) $data['resource'];
+                } elseif (is_array($data['resource']) && isset($data['resource']['id'])) {
+                    $data['resource'] = '/api/ressources/' . (int) $data['resource']['id'];
+                }
+            }
         }
 
         if ($type === Amis::class) {
