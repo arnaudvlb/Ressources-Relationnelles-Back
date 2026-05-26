@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\RessourcesRepository;
 use App\State\RessourcesCollectionProvider;
+use App\State\RessourceWriteProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -44,10 +45,12 @@ enum VisibiliteStatut: string
             provider: RessourcesCollectionProvider::class
         ),
         new Post(
-            security: "is_granted('ROLE_USER')"
+            security: "is_granted('ROLE_USER')",
+            processor: RessourceWriteProcessor::class
         ),
         new Put(
-            security: "is_granted('RESSOURCE_EDIT', object)"
+            security: "is_granted('RESSOURCE_EDIT', object)",
+            processor: RessourceWriteProcessor::class
         ),
         new Delete(
             security: "is_granted('RESSOURCE_DELETE', object)"
