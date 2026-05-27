@@ -41,7 +41,8 @@ class Categories
     private ?string $couleur = null;
 
     #[ORM\ManyToOne(inversedBy: 'categories')]
-    #[Groups(['categories:read', 'categories:write'])]
+    #[ORM\JoinColumn(nullable: true)]
+    #[Groups(['categories:read'])]
     private ?Ressources $resource = null;
 
     public function getId(): ?int

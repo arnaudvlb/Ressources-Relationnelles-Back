@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\ApiProperty;
@@ -41,6 +42,11 @@ enum VisibiliteStatut: string
         new GetCollection(),
         new Post(
             security: "is_granted('ROLE_USER')"
+        ),
+        new Patch(
+            uriTemplate: '/ressources/{id}/validation',
+            security: "is_granted('ROLE_ADMIN')",
+            denormalizationContext: ['groups' => ['resource:admin_write']]
         ),
         new Put(
             security: "is_granted('RESSOURCE_EDIT', object)"
@@ -81,7 +87,7 @@ class Ressources
     private ?\DateTime $dateModification = null;
 
     #[ORM\Column]
-    #[Groups(['resource:read', 'resource:write'])]
+    #[Groups(['resource:read', 'resource:admin_write'])]
     private ?bool $estVisible = true;
 
     #[ORM\Column(type: 'string', enumType: VisibiliteStatut::class, length: 10)]
