@@ -19,8 +19,8 @@ class AmisRepository extends ServiceEntityRepository
     public function relationExiste(int $userA, int $userB): ?Amis
     {
         return $this->createQueryBuilder('a')
-            ->where('(a.demandeur = :a AND a.ami = :b)')
-            ->orWhere('(a.demandeur = :b AND a.ami = :a)')
+            ->where('(IDENTITY(a.demandeur) = :a AND IDENTITY(a.ami) = :b)')
+            ->orWhere('(IDENTITY(a.demandeur) = :b AND IDENTITY(a.ami) = :a)')
             ->setParameter('a', $userA)
             ->setParameter('b', $userB)
             ->getQuery()

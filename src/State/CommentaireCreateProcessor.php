@@ -11,10 +11,13 @@ use App\Entity\Consultations;
 use App\Entity\Favoris;
 use App\Entity\Message;
 use App\Entity\Utilisateurs;
+use App\Repository\AmisRepository;
 use App\Repository\CommentairesRepository;
 use App\Repository\RessourcesRepository;
 use App\Repository\UtilisateursRepository;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class CommentaireCreateProcessor implements ProcessorInterface
@@ -22,6 +25,7 @@ class CommentaireCreateProcessor implements ProcessorInterface
     public function __construct(
         private ProcessorInterface $persistProcessor,
         private Security $security,
+        private AmisRepository $amisRepository,
         private CommentairesRepository $commentairesRepository,
         private UtilisateursRepository $utilisateursRepository,
         private RessourcesRepository $ressourcesRepository,
@@ -81,9 +85,30 @@ class CommentaireCreateProcessor implements ProcessorInterface
                 $data->setAmi($ami);
             }
 
+            if ($data->getAmi() === null) {
+                throw new AccessDeniedException('Le destinataire ami est introuvable.');
+            }
+
+            if ($data->getAmi()->getId() === $currentUser->getId()) {
+                throw new ConflictHttpException('Un utilisateur ne peut pas etre ami avec lui-meme.');
+            }
+
+            $relationExistante = $this->amisRepository->relationExiste(
+                $currentUser->getId(),
+                $data->getAmi()->getId()
+            );
+
+            if ($relationExistante !== null) {
+                throw new ConflictHttpException('Une relation d amitie existe deja entre ces deux utilisateurs.');
+            }
+
             $data->setDemandeur($currentUser);
 
-            return $this->persistProcessor->process($data, $operation, $uriVariables, $context);
+            try {
+                return $this->persistProcessor->process($data, $operation, $uriVariables, $context);
+            } catch (UniqueConstraintViolationException) {
+                throw new ConflictHttpException('Une relation d amitie existe deja entre ces deux utilisateurs.');
+            }
         }
 
         if ($data instanceof Message) {

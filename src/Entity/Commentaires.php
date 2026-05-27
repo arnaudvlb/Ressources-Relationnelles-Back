@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
@@ -55,6 +56,7 @@ class Commentaires
     private ?\DateTime $dateCreation = null;
 
     #[ORM\ManyToOne(inversedBy: 'commentaires')]
+    #[ApiProperty(readableLink: true)]
     #[Groups(['commentaires:read'])]
     private ?Utilisateurs $utilisateur = null;
 
