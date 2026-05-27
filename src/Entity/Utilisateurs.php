@@ -40,15 +40,15 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['utilisateurs:read', 'resource:read'])]
+    #[Groups(['utilisateurs:read', 'resource:read', 'commentaires:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['utilisateurs:read', 'utilisateurs:write', 'utilisateurs:profile:write', 'resource:read'])]
+    #[Groups(['utilisateurs:read', 'utilisateurs:write', 'utilisateurs:profile:write', 'resource:read', 'commentaires:read'])]
     private ?string $nom = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['utilisateurs:read', 'utilisateurs:write', 'utilisateurs:profile:write', 'resource:read'])]
+    #[Groups(['utilisateurs:read', 'utilisateurs:write', 'utilisateurs:profile:write', 'resource:read', 'commentaires:read'])]
     private ?string $prenom = null;
 
     #[ORM\Column(length: 255)]
@@ -63,7 +63,7 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $motDePasse = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['utilisateurs:read', 'utilisateurs:write', 'utilisateurs:profile:write', 'resource:read'])]
+    #[Groups(['utilisateurs:read', 'utilisateurs:write', 'utilisateurs:profile:write', 'resource:read', 'commentaires:read'])]
     private ?string $pseudo = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -209,6 +209,13 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     public function getPhotoProfil(): ?string
+    {
+        return $this->photoProfil;
+    }
+
+    #[Groups(['commentaires:read'])]
+    #[SerializedName('photo_profil')]
+    public function getPhotoProfilForCommentaires(): ?string
     {
         return $this->photoProfil;
     }
