@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use App\Repository\UtilisateursRepository;
@@ -79,7 +80,7 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\ManyToOne(inversedBy: 'utilisateurs')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['utilisateurs:read', 'utilisateurs:write'])]
+    #[Groups(['utilisateurs:write'])]
     private ?RolesUtilisateurs $role = null;
 
     #[ORM\OneToMany(targetEntity: RefreshToken::class, mappedBy: 'utilisateur')]
@@ -253,6 +254,20 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
         $this->role = $role;
 
         return $this;
+    }
+
+    #[Groups(['utilisateurs:read'])]
+    #[SerializedName('role')]
+    public function getRolePayload(): ?array
+    {
+        if ($this->role === null) {
+            return null;
+        }
+
+        return [
+            'id' => $this->role->getId(),
+            'libelle' => $this->role->getLibelle(),
+        ];
     }
 
     /**

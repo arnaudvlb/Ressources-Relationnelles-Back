@@ -62,11 +62,12 @@ class Commentaires
     #[Groups(['commentaires:read', 'commentaires:write'])]
     private ?Ressources $resource = null;
 
-    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'commentaires')]
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'commentaires', cascade: ['remove'])]
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
     #[Groups(['commentaires:read', 'commentaires:write', 'resource:read'])]
     private ?self $commentaireParent = null;
 
-    #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'commentaireParent')]
+    #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'commentaireParent', orphanRemoval: true)]
     #[Groups(['commentaires:read'])]
     private Collection $commentaires;
 

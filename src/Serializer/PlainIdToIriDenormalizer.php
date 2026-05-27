@@ -17,10 +17,16 @@ class PlainIdToIriDenormalizer implements DenormalizerInterface, DenormalizerAwa
 {
     use DenormalizerAwareTrait;
 
+    private const CONTEXT_ALREADY_PROCESSED = 'plain_id_to_iri_denormalizer_already_processed';
+
     private array $handledTypes = [Commentaires::class, Amis::class, Message::class, Adorer::class, Favoris::class, Consultations::class, Ressources::class];
 
     public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
     {
+        if (!empty($context[self::CONTEXT_ALREADY_PROCESSED])) {
+            return false;
+        }
+
         if (!in_array($type, $this->handledTypes, true)) {
             return false;
         }
@@ -32,6 +38,8 @@ class PlainIdToIriDenormalizer implements DenormalizerInterface, DenormalizerAwa
         if (!is_array($data)) {
             return $this->denormalizer->denormalize($data, $type, $format, $context);
         }
+
+        $context[self::CONTEXT_ALREADY_PROCESSED] = true;
 
         $convert = function (&$value, string $prefix) {
             if (is_int($value) || ctype_digit((string)$value)) {
