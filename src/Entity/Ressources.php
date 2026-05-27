@@ -114,7 +114,7 @@ class Ressources
     #[ORM\ManyToOne(inversedBy: 'ressources')]
     #[ORM\JoinColumn(name: 'categorie_id', referencedColumnName: 'id', nullable: false)]
     #[ApiProperty(readableLink: true)]
-    #[Groups(['resource:write'])]
+    #[Groups(['resource:read', 'resource:write'])]
     private ?Categories $categorie = null;
 
     #[ORM\OneToMany(targetEntity: Consultations::class, mappedBy: 'resource')]

@@ -116,6 +116,7 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $favoris;
 
     #[Groups(['utilisateurs:write'])]
+    #[SerializedName('password')]
     private ?string $plainPassword = null;
 
     public function __construct()
