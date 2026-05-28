@@ -158,7 +158,6 @@ class Commentaires
     public function removeCommentaire(self $commentaire): static
     {
         if ($this->commentaires->removeElement($commentaire)) {
-            // set the owning side to null (unless already changed)
             if ($commentaire->getCommentaireParent() === $this) {
                 $commentaire->setCommentaireParent(null);
             }

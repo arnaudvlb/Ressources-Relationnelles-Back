@@ -101,7 +101,6 @@ class Tags
     public function removeTagsRessource(TagsRessources $tagsRessource): static
     {
         if ($this->tagsRessources->removeElement($tagsRessource)) {
-            // set the owning side to null (unless already changed)
             if ($tagsRessource->getTag() === $this) {
                 $tagsRessource->setTag(null);
             }

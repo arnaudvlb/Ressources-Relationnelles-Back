@@ -75,7 +75,7 @@ class Ressources
     private ?string $contenu = null;
 
     #[ORM\Column]
-    #[Groups(['resource:read'])]
+    #[Groups(['resource:read', 'resource:admin_write'])]
     private ?bool $valide = false;
 
     #[ORM\Column]
@@ -280,6 +280,25 @@ class Ressources
     public function getTagsRessources(): Collection
     {
         return $this->tagsRessources;
+    }
+
+    /**
+     * Retourne les `Tags` associés à la ressource (libelle + couleur via le groupe `resource:read`).
+     *
+     * @return array<int, Tags>
+     */
+    #[Groups(['resource:read'])]
+    public function getTags(): array
+    {
+        $tags = [];
+        foreach ($this->tagsRessources as $tr) {
+            $tag = $tr->getTag();
+            if ($tag !== null) {
+                $tags[] = $tag;
+            }
+        }
+
+        return $tags;
     }
 
     public function addTagsRessource(TagsRessources $tagsRessource): static
