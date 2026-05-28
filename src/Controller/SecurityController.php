@@ -20,7 +20,7 @@ class SecurityController extends AbstractController
         return new JsonResponse(['message' => 'This should not be reached']);
     }
 
-    #[Route('/register', name: 'api_register', methods: ['POST'])]
+    #[Route('/api/register', name: 'api_register', methods: ['POST'])]
     public function register(
         Request $request,
         UtilisateursRepository $utilisateursRepository,
