@@ -14,11 +14,9 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class SecurityController extends AbstractController
 {
-    #[Route('/login_check', name: 'api_login_check', methods: ['POST'])]
+    #[Route('/api/login_check', name: 'api_login_check', methods: ['POST'])]
     public function login(): JsonResponse
     {
-        // Ce contrôleur ne sera jamais exécuté car la requête 
-        // est interceptée par le firewall json_login
         return new JsonResponse(['message' => 'This should not be reached']);
     }
 
@@ -36,7 +34,7 @@ class SecurityController extends AbstractController
             return new JsonResponse(['message' => 'Payload JSON invalide'], 400);
         }
 
-        $requiredFields = ['nom', 'prenom', 'telephone', 'email', 'pseudo', 'password'];
+        $requiredFields = ['email', 'pseudo', 'password'];
         foreach ($requiredFields as $field) {
             if (!isset($data[$field]) || trim((string) $data[$field]) === '') {
                 return new JsonResponse(['message' => sprintf('Le champ "%s" est obligatoire', $field)], 400);
@@ -49,9 +47,9 @@ class SecurityController extends AbstractController
 
         $user = new Utilisateurs();
         $user
-            ->setNom(trim((string) $data['nom']))
-            ->setPrenom(trim((string) $data['prenom']))
-            ->setTelephone(trim((string) $data['telephone']))
+            ->setNom(trim((string) ($data['nom'] ?? '')))
+            ->setPrenom(trim((string) ($data['prenom'] ?? '')))
+            ->setTelephone(trim((string) ($data['telephone'] ?? '')))
             ->setEmail(trim((string) $data['email']))
             ->setPseudo(trim((string) $data['pseudo']))
             ->setPhotoProfil(isset($data['photoProfil']) ? trim((string) $data['photoProfil']) : null)

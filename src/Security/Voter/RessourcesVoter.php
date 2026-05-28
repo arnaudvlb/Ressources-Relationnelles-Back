@@ -4,11 +4,12 @@ namespace App\Security\Voter;
 
 use App\Entity\Ressources;
 use App\Entity\Utilisateurs;
+use App\Entity\VisibiliteStatut;
 use App\Repository\AmisRepository;
 use App\Repository\UtilisateursRepository;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class RessourcesVoter extends Voter
 {
@@ -28,7 +29,13 @@ class RessourcesVoter extends Voter
     {
         $user = $token->getUser();
 
-        // Ensure we have an instance of Utilisateurs. JWT or other providers may give a string or different UserInterface.
+        /** @var Ressources $ressource */
+        $ressource = $subject;
+
+        if ($attribute === self::VIEW && $this->canView($ressource, $user)) {
+            return true;
+        }
+
         if (!$user instanceof Utilisateurs) {
             if (is_string($user)) {
                 $user = $this->utilisateursRepository->findOneBy(['email' => $user]);
@@ -42,9 +49,6 @@ class RessourcesVoter extends Voter
                 return false;
             }
         }
-
-        /** @var Ressources $ressource */
-        $ressource = $subject;
 
         if (in_array('ROLE_ADMIN', $user->getRoles())) {
             return true;
@@ -62,23 +66,18 @@ class RessourcesVoter extends Voter
         }
     }
 
-    private function canView(Ressources $ressource, Utilisateurs $user): bool
+    private function canView(Ressources $ressource, mixed $user): bool
     {
-        // Public resources are viewable by anyone authenticated (handled before)
-        if ($ressource->getVisibilite()->value === 'public') {
+        if ($ressource->getVisibilite() === VisibiliteStatut::PUBLIC) {
             return true;
         }
 
-        // Owner can always view (cast IDs to int to avoid type mismatch)
-        $owner = $ressource->getUtilisateur();
-        if ($owner !== null && (int) $owner->getId() === (int) $user->getId()) {
+        if ($user instanceof Utilisateurs && $ressource->getUtilisateur() === $user) {
             return true;
         }
 
-        // Friend visibility: only accepted friends can view
-        if ($ressource->getVisibilite()->value === 'friend' && $owner !== null) {
-            $relation = $this->amisRepository->relationExiste((int) $owner->getId(), (int) $user->getId());
-            return $relation !== null && $relation->getStatut() === 'accepte';
+        if ($user instanceof Utilisateurs && $ressource->getVisibilite() === VisibiliteStatut::AMI) {
+            return true;
         }
 
         return false;

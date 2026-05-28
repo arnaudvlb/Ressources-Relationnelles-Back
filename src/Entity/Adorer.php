@@ -8,6 +8,8 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\State\CommentaireCreateProcessor;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Attribute\Groups;
 use App\Repository\AdorerRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -18,7 +20,8 @@ use Doctrine\ORM\Mapping as ORM;
         new Get(),
         new GetCollection(),
         new Post(
-            security: "is_granted('ROLE_USER')"
+            security: "is_granted('ROLE_USER')",
+            processor: CommentaireCreateProcessor::class
         ),
         new Put(
             security: "is_granted('ADORER_EDIT', object)"
@@ -45,6 +48,10 @@ class Adorer
     #[ORM\ManyToOne(inversedBy: 'adorers')]
     #[Groups(['adorer:read', 'adorer:write', 'resource:read'])]
     private ?Utilisateurs $utilisateur = null;
+
+    #[Groups(['adorer:write'])]
+    #[SerializedName('id_resource')]
+    private ?int $idResource = null;
 
     #[ORM\ManyToOne(inversedBy: 'adorers')]
     #[Groups(['adorer:read', 'adorer:write'])]
@@ -75,6 +82,18 @@ class Adorer
     public function setUtilisateur(?Utilisateurs $utilisateur): static
     {
         $this->utilisateur = $utilisateur;
+
+        return $this;
+    }
+
+    public function getIdResource(): ?int
+    {
+        return $this->idResource;
+    }
+
+    public function setIdResource(?int $idResource): static
+    {
+        $this->idResource = $idResource;
 
         return $this;
     }

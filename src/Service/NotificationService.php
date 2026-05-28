@@ -31,7 +31,6 @@ class NotificationService
      */
     private function initializeObservers(): void
     {
-        // Ajouter les observateurs
         $this->notificationManager->attach(
             new DatabaseNotificationObserver($this->entityManager)
         );
@@ -44,8 +43,6 @@ class NotificationService
             new LogNotificationObserver($this->logger)
         );
 
-        // Vous pouvez ajouter d'autres observateurs ici
-        // Ex: PushNotificationObserver, SlackNotificationObserver, etc.
     }
 
     /**

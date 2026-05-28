@@ -8,6 +8,8 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Serializer\Attribute\Groups;
 use App\Repository\CategoriesRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -40,10 +42,14 @@ class Categories
     #[Groups(['categories:read', 'categories:write', 'resource:read'])]
     private ?string $couleur = null;
 
-    #[ORM\ManyToOne(inversedBy: 'categories')]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\OneToMany(targetEntity: Ressources::class, mappedBy: 'categorie')]
     #[Groups(['categories:read'])]
-    private ?Ressources $resource = null;
+    private Collection $ressources;
+
+    public function __construct()
+    {
+        $this->ressources = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -74,14 +80,31 @@ class Categories
         return $this;
     }
 
-    public function getResource(): ?Ressources
+    /**
+     * @return Collection<int, Ressources>
+     */
+    public function getRessources(): Collection
     {
-        return $this->resource;
+        return $this->ressources;
     }
 
-    public function setResource(?Ressources $resource): static
+    public function addRessource(Ressources $ressource): static
     {
-        $this->resource = $resource;
+        if (!$this->ressources->contains($ressource)) {
+            $this->ressources->add($ressource);
+            $ressource->setCategorie($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRessource(Ressources $ressource): static
+    {
+        if ($this->ressources->removeElement($ressource)) {
+            if ($ressource->getCategorie() === $this) {
+                $ressource->setCategorie(null);
+            }
+        }
 
         return $this;
     }

@@ -28,6 +28,28 @@ services:
             $passwordHasher: "@security.user_password_hasher"
             $rolesRepo: '@App\Repository\RolesUtilisateursRepository'
 
+    App\State\RessourcesCollectionProvider:
+        arguments:
+            $ressourcesRepository: '@App\Repository\RessourcesRepository'
+            $security: "@security.helper"
+
+    App\State\RessourceWriteProcessor:
+        arguments:
+            $persistProcessor: "@api_platform.doctrine.orm.state.persist_processor"
+            $security: "@security.helper"
+
+    App\State\CommentaireCreateProcessor:
+        arguments:
+            $persistProcessor: "@api_platform.doctrine.orm.state.persist_processor"
+            $security: "@security.helper"
+            $commentairesRepository: '@App\Repository\CommentairesRepository'
+            $utilisateursRepository: '@App\Repository\UtilisateursRepository'
+            $ressourcesRepository: '@App\Repository\RessourcesRepository'
+
+    App\Serializer\PlainIdToIriDenormalizer:
+        tags:
+            - { name: "serializer.normalizer", priority: 100 }
+
     # Singleton pour la gestion de la session utilisateur
     App\Service\UserSessionManager:
         shared: true # Force le singleton (une seule instance par conteneur)

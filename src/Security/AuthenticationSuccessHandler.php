@@ -20,16 +20,13 @@ class AuthenticationSuccessHandler implements AuthenticationSuccessHandlerInterf
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token): JsonResponse
     {
-        // Récupérer l'email de l'utilisateur authentifié
         $email = $token->getUserIdentifier();
         $user = $token->getUser();
 
-        // Réinitialiser les tentatives échouées
         if ($email) {
             $this->loginAttemptService->recordSuccessfulAttempt($email);
         }
 
-        // Générer le token JWT
         $jwt = $this->jwtManager->create($token->getUser());
 
         $userData = null;

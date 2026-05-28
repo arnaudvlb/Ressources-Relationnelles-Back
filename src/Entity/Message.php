@@ -8,6 +8,9 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\State\CommentaireCreateProcessor;
+use App\State\MessagesRecusProvider;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Attribute\Groups;
 use App\Repository\MessageRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -18,7 +21,15 @@ use Doctrine\ORM\Mapping as ORM;
     operations: [
         new Get(),
         new GetCollection(),
-        new Post(),
+        new GetCollection(
+            uriTemplate: '/messages/recus',
+            provider: MessagesRecusProvider::class,
+            security: "is_granted('ROLE_USER')"
+        ),
+        new Post(
+            security: "is_granted('ROLE_USER')",
+            processor: CommentaireCreateProcessor::class
+        ),
         new Put(),
         new Delete(),
     ],
@@ -55,7 +66,10 @@ class Message
     #[Groups(['message:read', 'message:write'])]
     private ?Utilisateurs $destinataire = null;
 
-    // Getters / Setters
+    #[Groups(['message:write'])]
+    #[SerializedName('id_destinataire')]
+    private ?int $idDestinataire = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -113,6 +127,17 @@ class Message
     public function setDestinataire(?Utilisateurs $destinataire): self
     {
         $this->destinataire = $destinataire;
+        return $this;
+    }
+
+    public function getIdDestinataire(): ?int
+    {
+        return $this->idDestinataire;
+    }
+
+    public function setIdDestinataire(?int $idDestinataire): self
+    {
+        $this->idDestinataire = $idDestinataire;
         return $this;
     }
 }

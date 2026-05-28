@@ -3,12 +3,15 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\State\CommentaireCreateProcessor;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 use App\Repository\CommentairesRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -23,7 +26,8 @@ use Doctrine\ORM\Mapping as ORM;
         ),
         new GetCollection(),
         new Post(
-            security: "is_granted('ROLE_USER')"
+            security: "is_granted('ROLE_USER')",
+            processor: CommentaireCreateProcessor::class
         ),
         new Put(
             security: "is_granted('COMMENTAIRE_EDIT', object)"
@@ -52,20 +56,34 @@ class Commentaires
     private ?\DateTime $dateCreation = null;
 
     #[ORM\ManyToOne(inversedBy: 'commentaires')]
-    #[Groups(['commentaires:read', 'commentaires:write'])]
+    #[ApiProperty(readableLink: true)]
+    #[Groups(['commentaires:read'])]
     private ?Utilisateurs $utilisateur = null;
 
     #[ORM\ManyToOne(inversedBy: 'commentaires')]
     #[Groups(['commentaires:read', 'commentaires:write'])]
     private ?Ressources $resource = null;
 
-    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'commentaires')]
-    #[Groups(['commentaires:read', 'commentaires:write'])]
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'commentaires', cascade: ['remove'])]
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
+    #[Groups(['commentaires:read', 'commentaires:write', 'resource:read'])]
     private ?self $commentaireParent = null;
 
-    #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'commentaireParent')]
+    #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'commentaireParent', orphanRemoval: true)]
     #[Groups(['commentaires:read'])]
     private Collection $commentaires;
+
+    #[Groups(['commentaires:write'])]
+    #[SerializedName('id_user')]
+    private ?int $idUser = null;
+
+    #[Groups(['commentaires:write'])]
+    #[SerializedName('id_resource')]
+    private ?int $idResource = null;
+
+    #[Groups(['commentaires:write'])]
+    #[SerializedName('commentaireParentId')]
+    private ?int $commentaireParentIdInput = null;
 
     public function __construct()
     {
@@ -137,6 +155,13 @@ class Commentaires
         return $this;
     }
 
+    #[Groups(['commentaires:read', 'resource:read'])]
+    #[SerializedName('commentaireParentId')]
+    public function getCommentaireParentId(): ?int
+    {
+        return $this->commentaireParent?->getId();
+    }
+
     /**
      * @return Collection<int, self>
      */
@@ -162,6 +187,42 @@ class Commentaires
                 $commentaire->setCommentaireParent(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getIdUser(): ?int
+    {
+        return $this->idUser;
+    }
+
+    public function setIdUser(?int $idUser): static
+    {
+        $this->idUser = $idUser;
+
+        return $this;
+    }
+
+    public function getIdResource(): ?int
+    {
+        return $this->idResource;
+    }
+
+    public function setIdResource(?int $idResource): static
+    {
+        $this->idResource = $idResource;
+
+        return $this;
+    }
+
+    public function getCommentaireParentIdInput(): ?int
+    {
+        return $this->commentaireParentIdInput;
+    }
+
+    public function setCommentaireParentIdInput(?int $commentaireParentIdInput): static
+    {
+        $this->commentaireParentIdInput = $commentaireParentIdInput;
 
         return $this;
     }

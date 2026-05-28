@@ -19,7 +19,6 @@ use App\Entity\Ressources;
 use App\Entity\RolesUtilisateurs;
 use App\Entity\Tags;
 use App\Entity\TagsRessources;
-use App\Entity\Types;
 use App\Entity\Utilisateurs;
 use App\Entity\VisibiliteStatut;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -73,13 +72,30 @@ class AppFixtures extends Fixture
         $manager->persist($userBob);
         $manager->persist($userCarla);
 
+        $category1 = (new Categories())
+            ->setLibelle('Symfony')
+            ->setCouleur('#1f4e79');
+
+        $category2 = (new Categories())
+            ->setLibelle('API')
+            ->setCouleur('#2f7d32');
+
+        $category3 = (new Categories())
+            ->setLibelle('Securite')
+            ->setCouleur('#8a6d3b');
+
+        $manager->persist($category1);
+        $manager->persist($category2);
+        $manager->persist($category3);
+
         $resource1 = (new Ressources())
             ->setTitre('Guide Symfony')
             ->setContenu('Introduction aux bases de Symfony 7.4.')
             ->setValide(true)
             ->setEstVisible(true)
             ->setVisibilite(VisibiliteStatut::PUBLIC)
-            ->setUtilisateur($userAlice);
+            ->setUtilisateur($userAlice)
+            ->setCategorie($category1);
 
         $resource2 = (new Ressources())
             ->setTitre('Checklist API Platform')
@@ -87,7 +103,8 @@ class AppFixtures extends Fixture
             ->setValide(false)
             ->setEstVisible(true)
             ->setVisibilite(VisibiliteStatut::AMI)
-            ->setUtilisateur($userBob);
+            ->setUtilisateur($userBob)
+            ->setCategorie($category2);
 
         $resource3 = (new Ressources())
             ->setTitre('Guide securite API')
@@ -95,32 +112,13 @@ class AppFixtures extends Fixture
             ->setValide(true)
             ->setEstVisible(true)
             ->setVisibilite(VisibiliteStatut::PUBLIC)
-            ->setUtilisateur($userCarla);
+            ->setUtilisateur($userCarla)
+            ->setCategorie($category3);
 
         $manager->persist($resource1);
         $manager->persist($resource2);
         $manager->persist($resource3);
 
-        $category1 = (new Categories())
-            ->setLibelle('Symfony')
-            ->setCouleur('#1f4e79')
-            ->setResource($resource1);
-
-        $category2 = (new Categories())
-            ->setLibelle('API')
-            ->setCouleur('#2f7d32')
-            ->setResource($resource2);
-
-        $category3 = (new Categories())
-            ->setLibelle('Securite')
-            ->setCouleur('#8a6d3b')
-            ->setResource($resource3);
-
-        $manager->persist($category1);
-        $manager->persist($category2);
-        $manager->persist($category3);
-
-        // Create some shares (Partages)
         $partage1 = (new Partages())
             ->setResource($resource1)
             ->setUtilisateur($userBob)
@@ -134,7 +132,6 @@ class AppFixtures extends Fixture
         $manager->persist($partage1);
         $manager->persist($partage2);
 
-        // Create some loves (Adorer)
         $adorer1 = (new Adorer())
             ->setResource($resource1)
             ->setUtilisateur($userCarla)
@@ -154,7 +151,6 @@ class AppFixtures extends Fixture
         $manager->persist($adorer2);
         $manager->persist($adorer3);
 
-        // Create some favorites (Favoris)
         $favori1 = (new Favoris())
             ->setResource($resource1)
             ->setUtilisateur($userBob);

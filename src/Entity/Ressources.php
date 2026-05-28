@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\RessourcesRepository;
+use App\State\RessourcesCollectionProvider;
+use App\State\RessourceWriteProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -16,6 +18,7 @@ use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\ApiProperty;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 
 enum VisibiliteStatut: string
 {
@@ -39,9 +42,12 @@ enum VisibiliteStatut: string
         new Get(
             security: "is_granted('RESSOURCE_VIEW', object)"
         ),
-        new GetCollection(),
+        new GetCollection(
+            provider: RessourcesCollectionProvider::class
+        ),
         new Post(
-            security: "is_granted('ROLE_USER')"
+            security: "is_granted('ROLE_USER')",
+            processor: RessourceWriteProcessor::class
         ),
         new Patch(
             uriTemplate: '/ressources/{id}/validation',
@@ -49,7 +55,8 @@ enum VisibiliteStatut: string
             denormalizationContext: ['groups' => ['resource:admin_write']]
         ),
         new Put(
-            security: "is_granted('RESSOURCE_EDIT', object)"
+            security: "is_granted('RESSOURCE_EDIT', object)",
+            processor: RessourceWriteProcessor::class
         ),
         new Delete(
             security: "is_granted('RESSOURCE_DELETE', object)"
@@ -110,10 +117,11 @@ class Ressources
     #[Groups(['resource:read'])]
     private Collection $tagsRessources;
 
-    #[ORM\OneToMany(targetEntity: Categories::class, mappedBy: 'resource')]
+    #[ORM\ManyToOne(inversedBy: 'ressources')]
+    #[ORM\JoinColumn(name: 'categorie_id', referencedColumnName: 'id', nullable: false)]
     #[ApiProperty(readableLink: true)]
-    #[Groups(['resource:read'])]
-    private Collection $categories;
+    #[Groups(['resource:read', 'resource:write'])]
+    private ?Categories $categorie = null;
 
     #[ORM\OneToMany(targetEntity: Consultations::class, mappedBy: 'resource')]
     #[ApiProperty(readableLink: true)]
@@ -145,7 +153,6 @@ class Ressources
         $this->dateCreation = new \DateTime();
         $this->medias = new ArrayCollection();
         $this->tagsRessources = new ArrayCollection();
-        $this->categories = new ArrayCollection();
         $this->consultations = new ArrayCollection();
         $this->commentaires = new ArrayCollection();
         $this->partages = new ArrayCollection();
@@ -227,7 +234,7 @@ class Ressources
 
     public function getVisibilite(): VisibiliteStatut
     {
-        return $this->visibilite;
+        return $this->visibilite ?? VisibiliteStatut::PUBLIC;
     }
 
     public function setVisibilite(VisibiliteStatut $visibilite): static
@@ -320,31 +327,23 @@ class Ressources
         return $this;
     }
 
-    /**
-     * @return Collection<int, Categories>
-     */
-    public function getCategories(): Collection
+    public function getCategorie(): ?Categories
     {
-        return $this->categories;
+        return $this->categorie;
     }
 
-    public function addCategory(Categories $category): static
+    public function setCategorie(?Categories $categorie): static
     {
-        if (!$this->categories->contains($category)) {
-            $this->categories->add($category);
-            $category->setResource($this);
-        }
+        $this->categorie = $categorie;
+
         return $this;
     }
 
-    public function removeCategory(Categories $category): static
+    #[Groups(['resource:read'])]
+    #[SerializedName('categorie_id')]
+    public function getCategorieId(): ?int
     {
-        if ($this->categories->removeElement($category)) {
-            if ($category->getResource() === $this) {
-                $category->setResource(null);
-            }
-        }
-        return $this;
+        return $this->categorie?->getId();
     }
 
     /**

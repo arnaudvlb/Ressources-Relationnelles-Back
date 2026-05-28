@@ -48,7 +48,7 @@ class RessourcesService
         $ressource->setTitre($titre);
         $ressource->setContenu($contenu);
         $ressource->setUtilisateur($user);
-        $ressource->setDateCreation(new \DateTimeImmutable());
+        $ressource->setDateCreation(new \DateTime());
         $ressource->setEstVisible(true);
 
         return $ressource;
@@ -65,7 +65,6 @@ class RessourcesService
 
         $currentUser = $this->sessionManager->getCurrentUser();
 
-        // Vérifier que l'utilisateur est propriétaire ou admin
         if ($ressource->getUtilisateur() !== $currentUser && !$this->sessionManager->isAdmin()) {
             throw new \Exception("Vous n'avez pas la permission de supprimer cette ressource");
         }

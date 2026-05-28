@@ -86,7 +86,6 @@ class RolesUtilisateurs
     public function removeUtilisateur(Utilisateurs $utilisateur): static
     {
         if ($this->utilisateurs->removeElement($utilisateur)) {
-            // set the owning side to null (unless already changed)
             if ($utilisateur->getRole() === $this) {
                 $utilisateur->setRole(null);
             }
