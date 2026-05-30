@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\ApiProperty;
@@ -48,6 +49,11 @@ enum VisibiliteStatut: string
             security: "is_granted('ROLE_USER')",
             processor: RessourceWriteProcessor::class
         ),
+        new Patch(
+            uriTemplate: '/ressources/{id}/validation',
+            security: "is_granted('ROLE_ADMIN')",
+            denormalizationContext: ['groups' => ['resource:admin_write']]
+        ),
         new Put(
             security: "is_granted('RESSOURCE_EDIT', object)",
             processor: RessourceWriteProcessor::class
@@ -76,7 +82,7 @@ class Ressources
     private ?string $contenu = null;
 
     #[ORM\Column]
-    #[Groups(['resource:read'])]
+    #[Groups(['resource:read', 'resource:admin_write'])]
     private ?bool $valide = false;
 
     #[ORM\Column]
@@ -88,7 +94,7 @@ class Ressources
     private ?\DateTime $dateModification = null;
 
     #[ORM\Column]
-    #[Groups(['resource:read', 'resource:write'])]
+    #[Groups(['resource:read', 'resource:admin_write'])]
     private ?bool $estVisible = true;
 
     #[ORM\Column(type: 'string', enumType: VisibiliteStatut::class, length: 10)]
@@ -281,6 +287,25 @@ class Ressources
     public function getTagsRessources(): Collection
     {
         return $this->tagsRessources;
+    }
+
+    /**
+     * Retourne les `Tags` associés à la ressource (libelle + couleur via le groupe `resource:read`).
+     *
+     * @return array<int, Tags>
+     */
+    #[Groups(['resource:read'])]
+    public function getTags(): array
+    {
+        $tags = [];
+        foreach ($this->tagsRessources as $tr) {
+            $tag = $tr->getTag();
+            if ($tag !== null) {
+                $tags[] = $tag;
+            }
+        }
+
+        return $tags;
     }
 
     public function addTagsRessource(TagsRessources $tagsRessource): static
