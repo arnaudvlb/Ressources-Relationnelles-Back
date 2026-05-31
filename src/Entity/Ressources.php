@@ -29,7 +29,7 @@ enum VisibiliteStatut: string
     public function label(): string
     {
         return match ($this) {
-            self::PRIVE  => 'Privé',
+            self::PRIVE  => 'PrivÃ©',
             self::PUBLIC => 'Public',
             self::AMI    => 'Amis',
         };
@@ -88,7 +88,7 @@ class Ressources
     private ?string $contenu = null;
 
     #[ORM\Column]
-    #[Groups(['resource:read', 'resource:admin_write'])]
+    #[Groups(['resource:read',  'resource:write', 'resource:admin_write'])]
     private ?bool $valide = false;
 
     #[ORM\Column]
@@ -100,7 +100,7 @@ class Ressources
     private ?\DateTime $dateModification = null;
 
     #[ORM\Column]
-    #[Groups(['resource:read', 'resource:admin_write'])]
+    #[Groups(['resource:read', 'resource:write', 'resource:admin_write'])]
     private ?bool $estVisible = true;
 
     #[ORM\Column(type: 'string', enumType: VisibiliteStatut::class, length: 10)]
