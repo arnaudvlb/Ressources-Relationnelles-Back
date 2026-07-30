@@ -3,6 +3,7 @@
 namespace App\Tests\Functional;
 
 use App\Entity\RolesUtilisateurs;
+use App\Entity\Utilisateurs;
 use App\Repository\RolesUtilisateursRepository;
 use App\Repository\UtilisateursRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -30,13 +31,20 @@ final class SecurityControllerTest extends WebTestCase
 
         $client->request(
             'POST',
-            '/register',
+            '/api/register',
             server: ['CONTENT_TYPE' => 'application/json'],
             content: '{invalid-json'
         );
 
         $this->assertResponseStatusCodeSame(400);
-        $payload = json_decode((string) $client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+        $payload = json_decode(
+            (string) $client->getResponse()->getContent(),
+            true,
+            512,
+            JSON_THROW_ON_ERROR
+        );
+
         $this->assertSame('Payload JSON invalide', $payload['message']);
     }
 
@@ -44,17 +52,21 @@ final class SecurityControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
+        $existingUser = new Utilisateurs();
+
         $utilisateursRepository = $this->createMock(UtilisateursRepository::class);
-        $utilisateursRepository->expects($this->once())
+
+        $utilisateursRepository
+            ->expects($this->once())
             ->method('findOneBy')
             ->with(['email' => 'alice@example.com'])
-            ->willReturn(new \stdClass());
+            ->willReturn($existingUser);
 
         self::getContainer()->set(UtilisateursRepository::class, $utilisateursRepository);
 
         $client->request(
             'POST',
-            '/register',
+            '/api/register',
             server: ['CONTENT_TYPE' => 'application/json'],
             content: json_encode([
                 'email' => 'alice@example.com',
@@ -64,7 +76,14 @@ final class SecurityControllerTest extends WebTestCase
         );
 
         $this->assertResponseStatusCodeSame(409);
-        $payload = json_decode((string) $client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+        $payload = json_decode(
+            (string) $client->getResponse()->getContent(),
+            true,
+            512,
+            JSON_THROW_ON_ERROR
+        );
+
         $this->assertSame('Cet email est déjà utilisé', $payload['message']);
     }
 
@@ -72,42 +91,46 @@ final class SecurityControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $rolesRepository = self::getContainer()->get(RolesUtilisateursRepository::class);
+
+        $role = $rolesRepository->findOneBy(['libelle' => 'ROLE_USER']);
+
+        if (!$role) {
+            $role = new RolesUtilisateurs();
+            $role->setLibelle('ROLE_USER');
+
+            $entityManager->persist($role);
+            $entityManager->flush();
+        }
+
+        $email = 'alice_' . uniqid() . '@example.com';
+
         $utilisateursRepository = $this->createMock(UtilisateursRepository::class);
-        $utilisateursRepository->expects($this->once())
+
+        $utilisateursRepository
+            ->expects($this->once())
             ->method('findOneBy')
-            ->with(['email' => 'alice@example.com'])
+            ->with(['email' => $email])
             ->willReturn(null);
 
-        $role = new RolesUtilisateurs();
-        $role->setLibelle('ROLE_USER');
-
-        $rolesRepository = $this->createMock(RolesUtilisateursRepository::class);
-        $rolesRepository->expects($this->once())
-            ->method('findOneBy')
-            ->with(['libelle' => 'ROLE_USER'])
-            ->willReturn($role);
-
         $passwordHasher = $this->createMock(UserPasswordHasherInterface::class);
-        $passwordHasher->expects($this->once())
+
+        $passwordHasher
+            ->expects($this->once())
             ->method('hashPassword')
             ->willReturn('hashed-password');
 
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-        $entityManager->expects($this->once())->method('persist');
-        $entityManager->expects($this->once())->method('flush');
-
         self::getContainer()->set(UtilisateursRepository::class, $utilisateursRepository);
-        self::getContainer()->set(RolesUtilisateursRepository::class, $rolesRepository);
         self::getContainer()->set(UserPasswordHasherInterface::class, $passwordHasher);
-        self::getContainer()->set(EntityManagerInterface::class, $entityManager);
 
         $client->request(
             'POST',
-            '/register',
+            '/api/register',
             server: ['CONTENT_TYPE' => 'application/json'],
             content: json_encode([
-                'email' => 'alice@example.com',
-                'pseudo' => 'alice',
+                'email' => $email,
+                'pseudo' => 'alice_' . uniqid(),
                 'password' => 'secret123',
                 'nom' => 'Alice',
                 'prenom' => 'Martin',
@@ -117,10 +140,15 @@ final class SecurityControllerTest extends WebTestCase
 
         $this->assertResponseStatusCodeSame(201);
 
-        $payload = json_decode((string) $client->getResponse()->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $payload = json_decode(
+            (string) $client->getResponse()->getContent(),
+            true,
+            512,
+            JSON_THROW_ON_ERROR
+        );
+
         $this->assertSame('Inscription réussie', $payload['message']);
-        $this->assertSame('alice@example.com', $payload['user']['email']);
-        $this->assertSame('alice', $payload['user']['pseudo']);
+        $this->assertSame($email, $payload['user']['email']);
         $this->assertContains('ROLE_USER', $payload['user']['roles']);
     }
 }

@@ -5,14 +5,19 @@ namespace App\Security\Voter;
 use App\Entity\Ressources;
 use App\Entity\Utilisateurs;
 use App\Entity\VisibiliteStatut;
+use App\Repository\AmisRepository;
+use App\Repository\UtilisateursRepository;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class RessourcesVoter extends Voter
 {
     public const EDIT = 'RESSOURCE_EDIT';
     public const DELETE = 'RESSOURCE_DELETE';
     public const VIEW = 'RESSOURCE_VIEW';
+
+    public function __construct(private AmisRepository $amisRepository, private UtilisateursRepository $utilisateursRepository) {}
 
     protected function supports(string $attribute, mixed $subject): bool
     {
@@ -32,7 +37,17 @@ class RessourcesVoter extends Voter
         }
 
         if (!$user instanceof Utilisateurs) {
-            return false;
+            if (is_string($user)) {
+                $user = $this->utilisateursRepository->findOneBy(['email' => $user]);
+            } elseif ($user instanceof UserInterface) {
+                $user = $this->utilisateursRepository->findOneBy(['email' => $user->getUserIdentifier()]);
+            } else {
+                return false;
+            }
+
+            if (!$user instanceof Utilisateurs) {
+                return false;
+            }
         }
 
         if (in_array('ROLE_ADMIN', $user->getRoles())) {
@@ -70,11 +85,13 @@ class RessourcesVoter extends Voter
 
     private function canEdit(Ressources $ressource, Utilisateurs $user): bool
     {
-        return $ressource->getUtilisateur() === $user;
+        $owner = $ressource->getUtilisateur();
+        return $owner !== null && (int) $owner->getId() === (int) $user->getId();
     }
 
     private function canDelete(Ressources $ressource, Utilisateurs $user): bool
     {
-        return $ressource->getUtilisateur() === $user;
+        $owner = $ressource->getUtilisateur();
+        return $owner !== null && (int) $owner->getId() === (int) $user->getId();
     }
 }
