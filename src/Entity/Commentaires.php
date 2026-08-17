@@ -57,7 +57,8 @@ class Commentaires
 
     #[ORM\ManyToOne(inversedBy: 'commentaires')]
     #[ApiProperty(readableLink: true)]
-    #[Groups(['commentaires:read'])]
+    #[Groups(['commentaires:read', 'resource:read'])]
+    #[SerializedName('auteur')]
     private ?Utilisateurs $utilisateur = null;
 
     #[ORM\ManyToOne(inversedBy: 'commentaires')]
@@ -77,7 +78,7 @@ class Commentaires
     #[SerializedName('id_user')]
     private ?int $idUser = null;
 
-    #[Groups(['commentaires:write'])]
+    #[Groups(['commentaires:read', 'resource:read'])]
     #[SerializedName('id_resource')]
     private ?int $idResource = null;
 
