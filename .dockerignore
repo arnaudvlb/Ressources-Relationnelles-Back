@@ -1,4 +1,35 @@
-node_modules
-.next
-npm-debug.log
-out
+# Dépendances PHP
+vendor/
+
+# Cache et logs Symfony
+var/cache/
+var/log/
+
+# Fichiers d'environnement
+.env
+.env.local
+.env.*.local
+
+# Tests / cache PHPUnit
+.phpunit.cache/
+.phpunit.result.cache
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# Docker
+Dockerfile
+docker-compose.yml
+docker-compose.yaml
+
+# Fichiers OS
+.DS_Store
+Thumbs.db
+
+# Documentation / fichiers inutiles au runtime
+README.md
