@@ -28,17 +28,37 @@ jobs:
           extensions: intl, pdo_mysql, zip
           coverage: none
 
-      - name: Validation de composer.json
-        run: composer validate
+      - name: Création du dossier de rapports
+        run: mkdir -p reports
 
-      - name: Installation des dépendances
-        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Validation de composer.json
+        run: |
+          set -o pipefail
+          composer validate 2>&1 | tee reports/composer-validate.txt
 
       - name: Vérification syntaxe PHP
-        run: find src -name "*.php" -print0 | xargs -0 -n1 php -l
+        run: |
+          set -o pipefail
+          find src -name "*.php" -print0 \
+            | xargs -0 -n1 php -l \
+            2>&1 | tee reports/lint-php.txt
 
       - name: Vérification configuration Symfony
-        run: php bin/console lint:container
+        run: |
+          set -o pipefail
+          php bin/console lint:container \
+            2>&1 | tee reports/lint-container.txt
 
       - name: Vérification YAML
-        run: php bin/console lint:yaml config
+        run: |
+          set -o pipefail
+          php bin/console lint:yaml config \
+            2>&1 | tee reports/lint-yaml.txt
+
+      - name: Sauvegarde des rapports de qualité
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: back-quality-reports
+          path: reports/
+          if-no-files-found: ignore
