@@ -1,0 +1,35 @@
+name: Back - Docker
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - "**/**"
+
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  docker-build:
+    name: Build image Docker
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+
+      - name: Configuration Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build de l'image Docker
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          tags: ressources-relationnelles-back:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

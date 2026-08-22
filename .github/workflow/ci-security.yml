@@ -1,0 +1,67 @@
+name: Back - Security
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - "**/**"
+
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+
+  composer-audit:
+    name: Audit des dépendances Composer
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+
+      - name: Installation de PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          coverage: none
+
+      - name: Installation des dépendances
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Audit Composer
+        run: composer audit
+        continue-on-error: true
+
+
+  secret-scan:
+    name: Recherche de secrets
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan Gitleaks
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+  semgrep:
+    name: Analyse Semgrep
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+
+      - name: Installation de Semgrep
+        run: pip install semgrep
+
+      - name: Scan Semgrep
+        run: semgrep scan --config auto src

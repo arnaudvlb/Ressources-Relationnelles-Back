@@ -1,0 +1,44 @@
+name: Back - Quality
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - "**/**"
+
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  quality:
+    name: Qualité PHP & Symfony
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+
+      - name: Installation de PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: intl, pdo_mysql, zip
+          coverage: none
+
+      - name: Validation de composer.json
+        run: composer validate --strict
+
+      - name: Installation des dépendances
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Vérification syntaxe PHP
+        run: find src -name "*.php" -print0 | xargs -0 -n1 php -l
+
+      - name: Vérification configuration Symfony
+        run: php bin/console lint:container
+
+      - name: Vérification YAML
+        run: php bin/console lint:yaml config
