@@ -36,6 +36,9 @@ jobs:
           set -o pipefail
           composer validate 2>&1 | tee reports/composer-validate.txt
 
+      - name: Installation des dépendances
+        run: composer install --no-interaction --prefer-dist --no-progress
+
       - name: Vérification syntaxe PHP
         run: |
           set -o pipefail
