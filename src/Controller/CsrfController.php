@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
@@ -14,8 +15,24 @@ class CsrfController extends AbstractController
     {
         $token = $csrfTokenManager->getToken('submit');
 
-        return new JsonResponse([
+        $response = new JsonResponse([
             'token' => $token->getValue(),
         ]);
+
+        $response->headers->setCookie(
+            Cookie::create(
+                'csrf-token_' . $token->getValue(),
+                'csrf-token',
+                0,
+                '/',
+                null,
+                false,
+                false,
+                false,
+                'strict'
+            )
+        );
+
+        return $response;
     }
 }

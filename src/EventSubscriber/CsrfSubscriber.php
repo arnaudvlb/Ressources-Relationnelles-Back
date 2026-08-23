@@ -13,8 +13,7 @@ class CsrfSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private CsrfTokenManagerInterface $csrfTokenManager
-    ) {
-    }
+    ) {}
 
     public static function getSubscribedEvents(): array
     {
@@ -31,19 +30,18 @@ class CsrfSubscriber implements EventSubscriberInterface
 
         $request = $event->getRequest();
 
-        // Uniquement l'API
         if (!str_starts_with($request->getPathInfo(), '/api/')) {
             return;
         }
 
-        // Les méthodes sûres ne nécessitent pas de CSRF
         if ($request->isMethodSafe()) {
             return;
         }
 
         $token = $request->headers->get('csrf-token');
+        $cookie = $request->cookies->get('csrf-token_csrf-token');
 
-        if (!$token) {
+        if (!$token || !$cookie) {
             $event->setResponse(new JsonResponse([
                 'message' => 'Token CSRF manquant',
             ], 403));
@@ -51,9 +49,15 @@ class CsrfSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $csrfToken = new CsrfToken('submit', $token);
+        if (!hash_equals($cookie, 'csrf-token')) {
+            $event->setResponse(new JsonResponse([
+                'message' => 'Token CSRF invalide',
+            ], 403));
 
-        if (!$this->csrfTokenManager->isTokenValid($csrfToken)) {
+            return;
+        }
+
+        if ($token !== $cookie) {
             $event->setResponse(new JsonResponse([
                 'message' => 'Token CSRF invalide',
             ], 403));
