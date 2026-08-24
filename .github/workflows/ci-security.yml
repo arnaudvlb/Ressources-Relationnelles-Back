@@ -31,24 +31,9 @@ jobs:
       - name: Installation des dépendances
         run: composer install --no-interaction --prefer-dist --no-progress
 
-      - name: Création du dossier de rapports
-        run: mkdir -p reports
-
-      - name: Audit Composer - rapport texte
-        run: composer audit > reports/composer-audit.txt 2>&1
+      - name: Audit Composer
+        run: composer audit
         continue-on-error: true
-
-      - name: Audit Composer - rapport JSON
-        run: composer audit --format=json > reports/composer-audit.json
-        continue-on-error: true
-
-      - name: Sauvegarde du rapport des dépendances
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: composer-security-report
-          path: reports/
-          if-no-files-found: ignore
 
 
   secret-scan:

@@ -53,20 +53,16 @@ COPY src ./src
 COPY templates ./templates
 
 
-# Création des dossiers nécessaires à Symfony
+
 RUN mkdir -p var/cache var/log \
     && chown -R www-data:www-data /app
 
-
-# Définit le dossier personnel utilisé par Symfony CLI
 ENV HOME=/app
 
 
 # Utilisation d'un utilisateur non root
 USER www-data
 
-
-# Port utilisé par l'API
 EXPOSE 8000
 
 

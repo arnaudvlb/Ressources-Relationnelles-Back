@@ -21,7 +21,9 @@ jobs:
       - name: Récupération du code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+            fetch-depth: 0
+            submodules: recursive
+            
 
       - name: Installation de PHP
         uses: shivammathur/setup-php@v2
@@ -34,6 +36,6 @@ jobs:
         run: composer install --no-interaction --prefer-dist --no-progress
 
       - name: Analyse SonarCloud
-        uses: SonarSource/sonarqube-scan-action@v6
+        uses: SonarSource/sonarqube-scan-action@v8
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
