@@ -1,0 +1,54 @@
+name: Back - API
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - "**/**"
+
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  api-check:
+    name: Vérification API Symfony
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+
+      - name: Installation de PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: intl, pdo_mysql, zip
+          coverage: none
+
+      - name: Installation des dépendances
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Démarrage du serveur Symfony
+        run: |
+          php -S 127.0.0.1:8000 -t public > /tmp/symfony.log 2>&1 &
+          echo $! > server.pid
+
+      - name: Attente du démarrage
+        run: |
+          for i in {1..30}; do
+            if curl -I http://127.0.0.1:8000 > /dev/null 2>&1; then
+              echo "API disponible"
+              exit 0
+            fi
+
+            sleep 2
+          done
+
+          cat /tmp/symfony.log
+          exit 1
+
+      - name: Vérification HTTP
+        run: curl -I http://127.0.0.1:8000
