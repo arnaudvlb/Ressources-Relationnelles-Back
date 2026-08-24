@@ -80,4 +80,41 @@ class SecurityController extends AbstractController
             ],
         ], 201);
     }
+
+    #[Route('/api/me', name: 'api_me', methods: ['GET'])]
+    public function me(): JsonResponse
+    {
+        $user = $this->getUser();
+
+        if (!$user instanceof Utilisateurs) {
+            return new JsonResponse([
+                'message' => 'Utilisateur non authentifié',
+            ], 401);
+        }
+
+        return new JsonResponse([
+            'id' => $user->getId(),
+            'email' => $user->getEmail(),
+            'pseudo' => $user->getPseudo(),
+            'nom' => $user->getNom(),
+            'prenom' => $user->getPrenom(),
+            'telephone' => $user->getTelephone(),
+            'roles' => $user->getRoles(),
+        ]);
+    }
+
+    #[Route('/api/logout', name: 'api_logout', methods: ['POST'])]
+    public function logout(): JsonResponse
+    {
+        $response = new JsonResponse([
+            'message' => 'Déconnexion réussie',
+        ]);
+
+        $response->headers->clearCookie(
+            'JWT',
+            '/',
+        );
+
+        return $response;
+    }
 }
