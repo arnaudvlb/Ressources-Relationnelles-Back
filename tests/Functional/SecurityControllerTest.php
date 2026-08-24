@@ -12,11 +12,33 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final class SecurityControllerTest extends WebTestCase
 {
+    private function getCsrfToken($client): string
+    {
+        $client->request('GET', '/api/csrf-token');
+
+        $data = json_decode(
+            (string) $client->getResponse()->getContent(),
+            true,
+            512,
+            JSON_THROW_ON_ERROR
+        );
+
+        return $data['token'];
+    }
+
     public function testLoginCheckRouteIsReachable(): void
     {
         $client = static::createClient();
 
-        $client->request('POST', '/api/login_check');
+        $csrfToken = $this->getCsrfToken($client);
+
+        $client->request(
+            'POST',
+            '/api/login_check',
+            server: [
+                'HTTP_CSRF_TOKEN' => $csrfToken,
+            ]
+        );
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonStringEqualsJsonString(
@@ -29,10 +51,15 @@ final class SecurityControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
+        $csrfToken = $this->getCsrfToken($client);
+
         $client->request(
             'POST',
             '/api/register',
-            server: ['CONTENT_TYPE' => 'application/json'],
+            server: [
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_CSRF_TOKEN' => $csrfToken,
+            ],
             content: '{invalid-json'
         );
 
@@ -52,22 +79,56 @@ final class SecurityControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
+        $csrfToken = $this->getCsrfToken($client);
+
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $rolesRepository = self::getContainer()->get(RolesUtilisateursRepository::class);
+
+        $role = $rolesRepository->findOneBy(['libelle' => 'ROLE_USER']);
+
+        if (!$role) {
+            $role = new RolesUtilisateurs();
+            $role->setLibelle('ROLE_USER');
+
+            $entityManager->persist($role);
+            $entityManager->flush();
+        }
+
+        $entityManager = self::getContainer()->get(EntityManagerInterface::class);
+        $rolesRepository = self::getContainer()->get(RolesUtilisateursRepository::class);
+
+        $role = $rolesRepository->findOneBy(['libelle' => 'ROLE_USER']);
+
+        if (!$role) {
+            $role = new RolesUtilisateurs();
+            $role->setLibelle('ROLE_USER');
+
+            $entityManager->persist($role);
+            $entityManager->flush();
+        }
+
         $existingUser = new Utilisateurs();
 
-        $utilisateursRepository = $this->createMock(UtilisateursRepository::class);
+        $existingUser
+            ->setNom('Alice')
+            ->setPrenom('Martin')
+            ->setTelephone('0600000000')
+            ->setEmail('alice@example.com')
+            ->setPseudo('alice')
+            ->setMotDePasse('hashed-password')
+            ->setStatusCompte(true)
+            ->setRole($role);
 
-        $utilisateursRepository
-            ->expects($this->once())
-            ->method('findOneBy')
-            ->with(['email' => 'alice@example.com'])
-            ->willReturn($existingUser);
-
-        self::getContainer()->set(UtilisateursRepository::class, $utilisateursRepository);
+        $entityManager->persist($existingUser);
+        $entityManager->flush();
 
         $client->request(
             'POST',
             '/api/register',
-            server: ['CONTENT_TYPE' => 'application/json'],
+            server: [
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_CSRF_TOKEN' => $csrfToken,
+            ],
             content: json_encode([
                 'email' => 'alice@example.com',
                 'pseudo' => 'alice',
@@ -91,6 +152,8 @@ final class SecurityControllerTest extends WebTestCase
     {
         $client = static::createClient();
 
+        $csrfToken = $this->getCsrfToken($client);
+
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $rolesRepository = self::getContainer()->get(RolesUtilisateursRepository::class);
 
@@ -106,28 +169,13 @@ final class SecurityControllerTest extends WebTestCase
 
         $email = 'alice_' . uniqid() . '@example.com';
 
-        $utilisateursRepository = $this->createMock(UtilisateursRepository::class);
-
-        $utilisateursRepository
-            ->expects($this->once())
-            ->method('findOneBy')
-            ->with(['email' => $email])
-            ->willReturn(null);
-
-        $passwordHasher = $this->createMock(UserPasswordHasherInterface::class);
-
-        $passwordHasher
-            ->expects($this->once())
-            ->method('hashPassword')
-            ->willReturn('hashed-password');
-
-        self::getContainer()->set(UtilisateursRepository::class, $utilisateursRepository);
-        self::getContainer()->set(UserPasswordHasherInterface::class, $passwordHasher);
-
         $client->request(
             'POST',
             '/api/register',
-            server: ['CONTENT_TYPE' => 'application/json'],
+            server: [
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_CSRF_TOKEN' => $csrfToken,
+            ],
             content: json_encode([
                 'email' => $email,
                 'pseudo' => 'alice_' . uniqid(),
