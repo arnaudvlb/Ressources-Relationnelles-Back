@@ -18,6 +18,7 @@ use App\State\UserPasswordProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UtilisateursRepository::class)]
 #[ApiResource(
@@ -45,18 +46,42 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255)]
     #[Groups(['utilisateurs:read', 'utilisateurs:write', 'utilisateurs:profile:write', 'resource:read', 'commentaires:read', 'amis:read', 'message:read'])]
+    #[Assert\NotBlank(message: 'Le nom est obligatoire.')]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'Le nom ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $nom = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(['utilisateurs:read', 'utilisateurs:write', 'utilisateurs:profile:write', 'resource:read', 'commentaires:read', 'amis:read', 'message:read'])]
+    #[Assert\NotBlank(message: 'Le prénom est obligatoire.')]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'Le prénom ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $prenom = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(['utilisateurs:read', 'utilisateurs:write', 'utilisateurs:profile:write', 'resource:read'])]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'Le numéro de téléphone ne peut pas dépasser {{ limit }} caractères.'
+    )]
+    #[Assert\Regex(
+        pattern: '/^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/',
+        message: 'Le numéro de téléphone n’est pas valide.'
+    )]
     private ?string $telephone = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(['utilisateurs:read', 'utilisateurs:write', 'utilisateurs:profile:write', 'resource:read'])]
+    #[Assert\NotBlank(message: 'L’adresse e-mail est obligatoire.')]
+    #[Assert\Email(message: 'L’adresse e-mail n’est pas valide.')]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'L’adresse e-mail ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
@@ -64,6 +89,13 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255)]
     #[Groups(['utilisateurs:read', 'utilisateurs:write', 'utilisateurs:profile:write', 'resource:read', 'commentaires:read', 'amis:read', 'message:read'])]
+    #[Assert\NotBlank(message: 'Le pseudo est obligatoire.')]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: 'Le pseudo doit contenir au moins {{ limit }} caractères.',
+        maxMessage: 'Le pseudo ne peut pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $pseudo = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -117,6 +149,14 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[Groups(['utilisateurs:write'])]
     #[SerializedName('password')]
+    #[Assert\NotBlank(
+        message: 'Le mot de passe est obligatoire.',
+        groups: ['Default']
+    )]
+    #[Assert\Length(
+        min: 8,
+        minMessage: 'Le mot de passe doit contenir au moins {{ limit }} caractères.'
+    )]
     private ?string $plainPassword = null;
 
     public function __construct()
