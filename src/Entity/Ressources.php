@@ -125,7 +125,6 @@ class Ressources
     #[ORM\JoinColumn(nullable: false)]
     #[ApiProperty(readableLink: true)]
     #[Groups(['resource:read'])]
-    #[Assert\NotNull(message: 'L’utilisateur est obligatoire.')]    
     private ?Utilisateurs $utilisateur = null;
 
     #[ORM\ManyToOne(inversedBy: 'ressources')]

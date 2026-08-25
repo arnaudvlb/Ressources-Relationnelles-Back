@@ -67,7 +67,6 @@ class Commentaires
     #[ApiProperty(readableLink: true)]
     #[Groups(['commentaires:read', 'resource:read'])]
     #[SerializedName('auteur')]
-    #[Assert\NotNull(message: 'L’auteur du commentaire est obligatoire.')]
     private ?Utilisateurs $utilisateur = null;
 
     #[ORM\ManyToOne(inversedBy: 'commentaires')]

@@ -56,19 +56,16 @@ class Message
 
     #[ORM\Column(name: 'date_envoie', type: 'datetime')]
     #[Groups(['message:read', 'message:write'])]
-    #[Assert\NotNull(message: 'La date d’envoi est obligatoire.')]
     private ?\DateTimeInterface $dateEnvoie = null;
 
     #[ORM\ManyToOne(targetEntity: Utilisateurs::class, inversedBy: 'messagesEnvoyes')]
     #[ORM\JoinColumn(name: 'id_Utilisateurs_1', referencedColumnName: 'id', nullable: false)]
     #[Groups(['message:read', 'message:write'])]
-    #[Assert\NotNull(message: 'L’expéditeur est obligatoire.')]
     private ?Utilisateurs $expediteur = null;
 
     #[ORM\ManyToOne(targetEntity: Utilisateurs::class, inversedBy: 'messagesRecus')]
     #[ORM\JoinColumn(name: 'id_Utilisateurs_2', referencedColumnName: 'id', nullable: false)]
     #[Groups(['message:read', 'message:write'])]
-    #[Assert\NotNull(message: 'Le destinataire est obligatoire.')]
     private ?Utilisateurs $destinataire = null;
 
     #[Groups(['message:write'])]
