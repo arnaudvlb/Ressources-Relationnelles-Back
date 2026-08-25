@@ -22,15 +22,19 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: UtilisateursRepository::class)]
 #[ApiResource(
     operations: [
-        new Get(),
-        new GetCollection(),
+        new Get(security: "is_granted('ROLE_ADMIN') or object == user"),
+        new GetCollection(security: "is_granted('ROLE_ADMIN')"),
         new Post(processor: UserPasswordProcessor::class),
-        new Put(processor: UserPasswordProcessor::class),
+        new Put(
+            security: "is_granted('ROLE_ADMIN') or object == user",
+            processor: UserPasswordProcessor::class,
+            denormalizationContext: ['groups' => ['utilisateurs:profile:write']]
+        ),
         new Patch(
             security: "is_granted('ROLE_USER') and object == user",
             denormalizationContext: ['groups' => ['utilisateurs:profile:write']]
         ),
-        new Delete(),
+        new Delete(security: "is_granted('ROLE_ADMIN')"),
     ],
     normalizationContext: ['groups' => ['utilisateurs:read']],
     denormalizationContext: ['groups' => ['utilisateurs:write']]
@@ -71,16 +75,16 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $photoProfil = null;
 
     #[ORM\Column]
-    #[Groups(['utilisateurs:read', 'utilisateurs:write', 'resource:read'])]
+    #[Groups(['utilisateurs:read', 'resource:read'])]
     private ?bool $statusCompte = null;
 
     #[ORM\Column]
-    #[Groups(['utilisateurs:read', 'utilisateurs:write', 'resource:read'])]
+    #[Groups(['utilisateurs:read', 'resource:read'])]
     private ?\DateTime $dateCreation = null;
 
     #[ORM\ManyToOne(inversedBy: 'utilisateurs')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['utilisateurs:write'])]
+    #[Groups(['utilisateurs:read'])]
     private ?RolesUtilisateurs $role = null;
 
     #[ORM\OneToMany(targetEntity: RefreshToken::class, mappedBy: 'utilisateur')]
