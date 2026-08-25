@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use ApiPlatform\Validator\Exception\ValidationException;
 
 class ApiExceptionSubscriber implements EventSubscriberInterface
 {
@@ -26,6 +27,25 @@ class ApiExceptionSubscriber implements EventSubscriberInterface
         }
 
         $exception = $event->getThrowable();
+
+        if ($exception instanceof ValidationException) {
+            $violations = [];
+
+            foreach ($exception->getConstraintViolationList() as $violation) {
+                $violations[] = [
+                    'propertyPath' => $violation->getPropertyPath(),
+                    'message' => $violation->getMessage(),
+                ];
+            }
+
+            $event->setResponse(new JsonResponse([
+                'status' => 422,
+                'message' => 'Les données fournies sont invalides.',
+                'violations' => $violations,
+            ], 422));
+
+            return;
+        }
 
         $statusCode = $exception instanceof HttpExceptionInterface
             ? $exception->getStatusCode()
