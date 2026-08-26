@@ -119,7 +119,7 @@ class Utilisateurs implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['utilisateurs:read'])]
     private Collection $favoris;
 
-    #[Groups(['utilisateurs:write'])]
+    #[Groups(['utilisateurs:write', 'utilisateurs:profile:write'])]
     #[SerializedName('password')]
     private ?string $plainPassword = null;
 
