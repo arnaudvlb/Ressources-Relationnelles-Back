@@ -99,16 +99,16 @@
             "./config/packages/lexik_jwt_authentication.yaml"
         ]
     },
-    "nelmio/cors-bundle": {
-        "version": "2.6",
+    "liip/monitor-bundle": {
+        "version": "2.25",
         "recipe": {
-            "repo": "github.com/symfony/recipes",
+            "repo": "github.com/symfony/recipes-contrib",
             "branch": "main",
-            "version": "1.5",
-            "ref": "6bea22e6c564fba3a1391615cada1437d0bde39c"
+            "version": "2.6",
+            "ref": "02c7cd93304dead890f9042fc2670dd9b0e0c091"
         },
         "files": [
-            "./config/packages/nelmio_cors.yaml"
+            "./config/packages/monitor.yaml"
         ]
     },
     "phpunit/phpunit": {

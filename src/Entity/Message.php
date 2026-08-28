@@ -14,6 +14,7 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\Serializer\Attribute\Groups;
 use App\Repository\MessageRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: MessageRepository::class)]
 #[ORM\Table(name: 'MESSAGES')]
@@ -45,6 +46,7 @@ class Message
 
     #[ORM\Column(type: 'text')]
     #[Groups(['message:read', 'message:write'])]
+    #[Assert\NotBlank(message: 'Le contenu du message est obligatoire.')]
     private ?string $contenu = null;
 
     #[ORM\Column(name: 'piece_jointe', nullable: true)]

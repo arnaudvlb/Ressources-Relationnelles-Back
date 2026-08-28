@@ -16,6 +16,7 @@
         "doctrine/doctrine-migrations-bundle": "^3.7",
         "doctrine/orm": "^3.6.8",
         "gesdinet/jwt-refresh-token-bundle": "^1.5.1",
+        "liip/monitor-bundle": "^2.25",
         "nelmio/cors-bundle": "^2.6",
         "symfony/asset": "7.4.*",
         "symfony/console": "7.4.*",
