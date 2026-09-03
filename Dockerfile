@@ -1,5 +1,5 @@
 # Stage 1 : image PHP finale
-FROM php:8.3-cli AS runner
+FROM php:8.5-cli AS runner
 
 WORKDIR /app
 
