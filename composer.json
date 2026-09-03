@@ -68,7 +68,16 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
-        ]
+        ],
+        "test:prepare": [
+        "@php bin/console doctrine:schema:drop --env=test --full-database --force",
+        "@php bin/console doctrine:schema:create --env=test",
+        "@php bin/console doctrine:fixtures:load --env=test --no-interaction"
+            ],
+            "test": [
+                "@test:prepare",
+                "@php bin/phpunit"
+            ]
     },
     "conflict": {
         "symfony/symfony": "*"

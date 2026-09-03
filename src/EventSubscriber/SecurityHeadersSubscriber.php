@@ -31,6 +31,10 @@ final class SecurityHeadersSubscriber implements EventSubscriberInterface
             'camera=(), microphone=(), geolocation=()'
         );
         $headers->set(
+            'Cross-Origin-Resource-Policy',
+            'same-site'
+        );
+        $headers->set(
             'Content-Security-Policy',
             "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'"
         );

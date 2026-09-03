@@ -2,6 +2,7 @@
 FROM php:8.5-cli AS runner
 
 WORKDIR /app
+
 RUN echo "expose_php=Off" > /usr/local/etc/php/conf.d/security.ini
 
 
