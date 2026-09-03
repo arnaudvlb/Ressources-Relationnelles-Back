@@ -32,13 +32,13 @@ jobs:
 
       - name: Démarrage de l'API
         run: |
-          php -S 0.0.0.0:8000 -t public > /tmp/api.log 2>&1 &
+          php -d expose_php=0 -S 0.0.0.0:8000 -t public > /tmp/api.log 2>&1 &
           echo $! > api.pid
 
       - name: Attente du démarrage
         run: |
           for i in {1..30}; do
-            if curl -sS http://127.0.0.1:8000/api > /dev/null 2>&1; then
+            if curl --fail --silent http://127.0.0.1:8000/api/docs.jsonopenapi > /dev/null; then
               echo "API disponible"
               exit 0
             fi
@@ -51,8 +51,9 @@ jobs:
           exit 1
 
       - name: Scan OWASP ZAP
-        uses: zaproxy/action-baseline@v0.15.0
+        uses: zaproxy/action-api-scan@v0.10.0
         with:
-          target: "http://127.0.0.1:8000/api"
+          target: "http://127.0.0.1:8000/api/docs.jsonopenapi"
+          format: openapi
           allow_issue_writing: false
           fail_action: true
