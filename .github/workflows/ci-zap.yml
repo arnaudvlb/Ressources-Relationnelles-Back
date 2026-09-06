@@ -89,6 +89,8 @@ jobs:
 
           curl --fail-with-body --silent --show-error \
             "http://127.0.0.1:8000/api/ressources?page=1"
+
+            
       - name: Scan OWASP ZAP
         uses: zaproxy/action-api-scan@v0.10.0
         with:
@@ -97,6 +99,7 @@ jobs:
           rules_file_name: ".zap/rules.tsv"
           allow_issue_writing: false
           fail_action: true
+          cmd_options: "-I"
 
       - name: Affichage des logs en cas d'échec
         if: failure()
