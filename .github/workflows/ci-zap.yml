@@ -79,7 +79,16 @@ jobs:
 
           cat /tmp/api.log
           exit 1
+      
+      - name: Vérification des routes avant ZAP
+        run: |
+          set -euo pipefail
 
+          curl --fail-with-body --silent --show-error \
+            "http://127.0.0.1:8000/api/categories?page=1"
+
+          curl --fail-with-body --silent --show-error \
+            "http://127.0.0.1:8000/api/ressources?page=1"
       - name: Scan OWASP ZAP
         uses: zaproxy/action-api-scan@v0.10.0
         with:
@@ -91,4 +100,4 @@ jobs:
 
       - name: Affichage des logs en cas d'échec
         if: failure()
-        run: cat /tmp/api.log
+        run: tail -n 200 /tmp/api.log
